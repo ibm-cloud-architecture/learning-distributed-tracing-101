@@ -1,4 +1,4 @@
-# Distriburing Tracing Lab
+# Distributing Tracing Lab
 
 ## Lab 1 - Node.js
 Change directory to the lab:
