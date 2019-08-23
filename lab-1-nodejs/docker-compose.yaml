@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.11
+    ports:
+      - "16686:16686"
+    restart: on-failure
+  service-a:
+    build: ./service-a
+    links:
+      - jaeger
+    depends_on:
+      - jaeger
+    ports:
+      - "8080:8080"
+    environment:
+      JAEGER_AGENT_HOST: jaeger
