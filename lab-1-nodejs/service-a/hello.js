@@ -1,9 +1,8 @@
 const opentracing = require("opentracing");
 const tracer = opentracing.globalTracer();
 
-
 let counter = 1;
-function sayHello(req, res) {
+const sayHello = async (req, res) => {
     // You can re-use the parent span or create a child span
     let span = ctx = tracer.startSpan("say-hello", { childOf: req.span });
 
@@ -16,8 +15,9 @@ function sayHello(req, res) {
     span.setBaggageItem("myBaggage", name);
 
     // simulate a slow request every 3 requests
-    setTimeout(() => {
-        let response = formatGreeting(name, span);
+    setTimeout(async () => {
+        //let response = await formatGreeting(name, span);
+        let response = await formatGreetingRemote(name, span);
         span.setTag("response", response);
         span.finish();
         res.send(response);
@@ -31,9 +31,16 @@ function formatGreeting(name, parent) {
     return response;
 }
 
-function formatGreetingRemote() {
-
+const bent = require('bent');
+const formatGreetingRemote = async (name, span) => {
+    let service = process.env.SERVICE_FORMATTER || 'localhost';
+    let servicePort = process.env.SERVICE_FORMATTER_PORT || '8081';
+    let url = `http://${service}:${servicePort}/formatGreeting?name=${name}`
+    let headers = {};
+    tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, headers);
+    let request = bent('string', headers);
+    let response = await request(url);
+    return response;
 }
-
 
 module.exports = sayHello;

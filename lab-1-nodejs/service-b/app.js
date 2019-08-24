@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
-const port = 8080
-const serviceName = process.env.SERVICE_NAME || `service-a`
+const port = 8081
+const serviceName = process.env.SERVICE_NAME || `service-b`
 
 // Initialize the Tracer
 const tracer = initTracer(serviceName)
@@ -10,25 +10,13 @@ opentracing.initGlobalTracer(tracer);
 
 // Instrument every incomming request
 app.use(tracingMiddleWare);
-let counter = 1
-app.get('/', (req, res) => res.send(`Hello World! counter=${counter++}`))
-
-// Let's capture http error span
-app.get('/error', (req, res) => {
-    res.status(500).send('some error (ノ ゜Д゜)ノ ︵ ┻━┻');
-})
 
 // Using the span inside a route handler
-const hello = require('./hello');
-app.get('/sayHello/:name', hello)
+const formatter = require('./formatter');
+app.get('/formatGreeting', formatter)
 
 app.disable('etag');
 app.listen(port, () => console.log(`Service ${serviceName} listening on port ${port}!`))
-
-
-
-
-
 
 function initTracer(serviceName) {
     const initJaegerTracer = require("jaeger-client").initTracerFromEnv;
