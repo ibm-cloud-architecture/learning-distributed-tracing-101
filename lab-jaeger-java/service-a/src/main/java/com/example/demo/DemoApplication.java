@@ -14,8 +14,8 @@ public class DemoApplication {
 	@Bean
 	public io.opentracing.Tracer initTracer() {
 		SamplerConfiguration samplerConfig = new SamplerConfiguration().withType("const").withParam(1);
-		ReporterConfiguration reporterConfig = new ReporterConfiguration().withLogSpans(true);
-		return new Configuration("service-a").withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
+		ReporterConfiguration reporterConfig = ReporterConfiguration.fromEnv().withLogSpans(true);
+		return Configuration.fromEnv("service-a").withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
 	}
 
 	public static void main(String[] args) {
