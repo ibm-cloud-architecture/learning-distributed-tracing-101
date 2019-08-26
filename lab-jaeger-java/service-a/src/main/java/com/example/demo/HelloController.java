@@ -19,7 +19,7 @@ public class HelloController {
 
     @GetMapping("/sayHello/{name}")
     public String sayHello(@PathVariable String name) {
-        Span span = tracer.buildSpan("say-hello").start();
+        Span span = tracer.buildSpan("say-hello-handler").start();
         try {
             String response = "Hello, " + name + "!";
             Map<String, String> fields = new LinkedHashMap<>();
