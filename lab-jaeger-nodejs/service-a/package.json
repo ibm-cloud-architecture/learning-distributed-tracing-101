@@ -11,5 +11,8 @@
     "express": "^4.17.1",
     "jaeger-client": "^3.15.0",
     "bent": "^6.0.5"
+  },
+  "devDependencies": {
+    "standard": "^14.0.2"
   }
 }
