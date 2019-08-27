@@ -16,6 +16,10 @@ Learn how to:
 - Understand distributed context propagation
 - Use baggage to pass data through the call graph
 
+## Prerequisites
+- [Docker for Desktop](https://www.docker.com/products/docker-desktop)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
 ## Lab - Node.js
 Change directory to the lab:
 ```
