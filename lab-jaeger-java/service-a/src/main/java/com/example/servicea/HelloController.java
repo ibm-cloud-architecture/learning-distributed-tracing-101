@@ -54,8 +54,12 @@ public class HelloController {
     private RestTemplate restTemplate;
 
     private String formatGreetingRemote(String name) {
+        String serviceName = System.getenv("SERVICE_FORMATTER");
+        if (serviceName == null) {
+            serviceName = "localhost";
+        }
         URI uri = UriComponentsBuilder //
-                .fromHttpUrl("http://localhost:8081/formatGreeting") //
+                .fromHttpUrl("http://" + serviceName + ":8081/formatGreeting") //
                 .queryParam("name", name).build(Collections.emptyMap());
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         return response.getBody();
