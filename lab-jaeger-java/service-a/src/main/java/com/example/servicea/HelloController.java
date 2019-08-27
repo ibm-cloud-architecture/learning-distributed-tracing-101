@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.tag.Tags;
 
 @RestController
 public class HelloController {
@@ -44,6 +45,7 @@ public class HelloController {
         Span span = tracer.buildSpan("format-greeting").asChildOf(parent).start();
         try {
             String response = "Hello, " + name + "!";
+            span.log("formmating string locally: " + name);
             return response;
         } finally {
             span.finish();
@@ -58,10 +60,18 @@ public class HelloController {
         if (serviceName == null) {
             serviceName = "localhost";
         }
-        URI uri = UriComponentsBuilder //
-                .fromHttpUrl("http://" + serviceName + ":8081/formatGreeting") //
-                .queryParam("name", name).build(Collections.emptyMap());
-        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-        return response.getBody();
+        String urlPath = "http://" + serviceName + ":8081/formatGreeting";
+        try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+            URI uri = UriComponentsBuilder //
+                    .fromHttpUrl(urlPath) //
+                    .queryParam("name", name).build(Collections.emptyMap());
+            scope.span().log("formmating string remotely: " + name);
+            Tags.SPAN_KIND.set(scope.span(), Tags.SPAN_KIND_CLIENT);
+            Tags.HTTP_METHOD.set(scope.span(), "GET");
+            Tags.HTTP_URL.set(scope.span(), urlPath);
+            ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+            return response.getBody();
+        }
+
     }
 }

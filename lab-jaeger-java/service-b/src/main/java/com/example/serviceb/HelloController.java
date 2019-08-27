@@ -19,7 +19,7 @@ public class HelloController {
 
     @GetMapping("/formatGreeting")
     public String formatGreeting(@RequestParam String name) {
-        Span span = tracer.buildSpan("format-greeting").start();
+        Span span = tracer.buildSpan("format-greeting-handler").start();
         try {
             String response = "Hello, from service-b " + name + "!";
             Map<String, String> fields = new LinkedHashMap<>();
