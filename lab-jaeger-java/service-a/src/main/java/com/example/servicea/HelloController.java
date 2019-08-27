@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,6 +73,14 @@ public class HelloController {
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
             return response.getBody();
         }
+
+    }
+
+    @GetMapping("/error")
+    public ResponseEntity<String> replyError() {
+        Span span = tracer.activeSpan();
+        Tags.ERROR.set(span, true);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 
     }
 }
