@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Service A-DemoApplication<servicea>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.servicea.DemoApplication",
+            "projectName": "servicea",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Service B-DemoApplication<serviceb>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.serviceb.DemoApplication",
+            "projectName": "serviceb",
+            "args": ""
+        }
+    ]
+}

@@ -12,7 +12,7 @@ const sayHello = async (req, res) => {
   // show how to do a log in the span
   span.log({ event: 'name', message: `this is a log message for name ${name}` })
   // show how to set a baggage item for context propagation (be careful is expensive)
-  span.setBaggageItem('myBaggage', name)
+  span.setBaggageItem('my-baggage', name)
 
   // simulate a slow request every 3 requests
   setTimeout(async () => {
@@ -24,7 +24,7 @@ const sayHello = async (req, res) => {
   }, counter++ % 3 === 0 ? 100 : 0)
 }
 
-function formatGreeting (name, parent) {
+function formatGreeting(name, parent) {
   const span = tracer.startSpan('format-greeting', { childOf: parent })
   const response = `Hello ${name}!`
   span.finish()
