@@ -19,8 +19,9 @@ Learn how to:
 ## Prerequisites
 - [Docker for Desktop](https://www.docker.com/products/docker-desktop)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- Code Editor - I recommend [VSCode](https://code.visualstudio.com/)
 
-## Lab - Node.js
+## Node.js Lab
 Change directory to the lab:
 ```
 cd lab-jaeger-nodejs
@@ -28,7 +29,7 @@ cd lab-jaeger-nodejs
 Follow the instructions for the [Lab - Distributing Tracing for Node.js](./lab-jaeger-nodejs/README.md)
 
 
-## Lab - Java
+## Java Lab
 Change directory to the lab:
 ```
 cd lab-jaeger-java
