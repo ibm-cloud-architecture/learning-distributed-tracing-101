@@ -1,7 +1,20 @@
-# Lab 1 - Node.js for Distributing Tracing
+# Lab 1 - Distributing Tracing for Node.js
 
 
-## Add tracing library for application
+## Test the service without tracing enable
+
+```
+docker-compose build
+docker-compose up
+```
+
+Try the service
+```
+curl http://localhost:8080/sayHello/Carlos
+Hello Carlo
+```
+
+## Add the tracing client library
 
 For the node.js service edit the file `package.json`and add the dependecy for `jaeger-client`
 
