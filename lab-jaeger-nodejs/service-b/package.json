@@ -1,0 +1,17 @@
+{
+  "name": "service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "debug": "npm start",
+    "vscode": "node --inspect-brk=9229 app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "jaeger-client": "^3.15.0"
+  },
+  "devDependencies": {
+    "standard": "^14.0.2"
+  }
+}
