@@ -1,0 +1,26 @@
+= Distributing Tracing Lab - Node.js
+Carlos Santana <csantana@us.ibm.com>
+v1.0, 2019-09-08
+:imagesdir: images
+
+
+== Prerequisites
+
+* https://www.docker.com/products/docker-desktop[Docker for Desktop]
+* https://docs.docker.com/compose/install[Docker Compose]
+* Code Editor
+** I recommend https://code.visualstudio.com[VSCode]
+
+
+== General Instructions
+
+The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
+
+
+== Procedure
+
+. Change directory to the lab:
++
+----
+cd lab-jaeger-nodejs
+----

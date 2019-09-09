@@ -1,0 +1,3 @@
+* xref:index.adoc[Distributing Tracing]
+* xref:lab-jaeger-java.adoc[Lab Jaeger - Java]
+* xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node]

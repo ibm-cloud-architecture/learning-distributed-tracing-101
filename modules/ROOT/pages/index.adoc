@@ -1,0 +1,21 @@
+= Distributing Tracing
+Carlos Santana <csantana@us.ibm.com>
+v1.0, 2019-09-08
+:toc:
+:imagesdir: images
+
+== Objectives
+
+Learn how to:
+
+* Instantiate a Tracer
+* Create a simple trace
+* Annotate the trace
+* Trace individual functions
+* Combine multiple spans into a single trace
+* Propagate the in-process context
+* Trace a transaction across more than one microservice
+* Pass the context between processes using Inject and Extract
+* Apply OpenTracing-recommended tags
+* Understand distributed context propagation
+* Use baggage to pass data through the call graph

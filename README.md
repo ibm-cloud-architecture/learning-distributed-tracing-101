@@ -26,7 +26,7 @@ Change directory to the lab:
 ```
 cd lab-jaeger-nodejs
 ```
-Follow the instructions for the [Lab - Distributing Tracing for Node.js](./lab-jaeger-nodejs/README.md)
+Follow the instructions for the [Lab - Distributing Tracing for Node.js](./modules/ROOT/pages/lab-jaeger-java.adoc)
 
 
 ## Java Lab
@@ -34,4 +34,4 @@ Change directory to the lab:
 ```
 cd lab-jaeger-java
 ```
-Follow the instructions for the [Lab - Distributing Tracing for Java](./lab-jaeger-java/README.md)
+Follow the instructions for the [Lab - Distributing Tracing for Java](./modules/ROOT/pages/lab-jaeger-nodejs.adoc)

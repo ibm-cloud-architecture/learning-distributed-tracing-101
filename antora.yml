@@ -1,0 +1,6 @@
+name: docs
+title: Learning Distributing Tracing 101
+version: master
+start_ROOT: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc
