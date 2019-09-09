@@ -3,24 +3,56 @@ Carlos Santana <csantana@us.ibm.com>
 v1.0, 2019-09-08
 :imagesdir: images
 
-
-== Prerequisites
+[discrete]
+=== Prerequisites
 
 * https://www.docker.com/products/docker-desktop[Docker for Desktop]
 * https://docs.docker.com/compose/install[Docker Compose]
 * Code Editor
 ** I recommend https://code.visualstudio.com[VSCode]
 
-
-== General Instructions
+[discrete]
+=== General Instructions
 
 The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
 
-
-== Procedure
+[discrete]
+=== Test your environment
 
 . Change directory to the lab:
 +
 ----
 cd lab-jaeger-nodejs
+----
+
+
+. Test the service without tracing enable
++
+----
+docker-compose build
+docker-compose up
+----
+
+. Try the service
++
+----
+curl http://localhost:8080/sayHello/Carlos
+Hello Carlos
+----
+
+
+[discrete]
+=== Add clien libraries
+
+. Add the tracing client library for the node.js `service-a`, edit the file `service-a/package.json` and add the dependecy for `jaeger-client`
+The json section should look like the following:
++
+[source, json]
+----
+{
+"dependencies": {
+    "express": "^4.17.1",
+    "jaeger-client": "^3.15.0"
+  }
+}
 ----
