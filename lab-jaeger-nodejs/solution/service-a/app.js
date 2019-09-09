@@ -10,8 +10,6 @@ opentracing.initGlobalTracer(tracer)
 
 // Instrument every incomming request
 app.use(tracingMiddleWare)
-let counter = 1
-app.get('/', (req, res) => res.send(`Hello World! counter=${counter++}`))
 
 // Let's capture http error span
 app.get('/error', (req, res) => {
@@ -25,7 +23,7 @@ app.get('/sayHello/:name', hello)
 app.disable('etag')
 app.listen(port, () => console.log(`Service ${serviceName} listening on port ${port}!`))
 
-function initTracer (serviceName) {
+function initTracer(serviceName) {
   const initJaegerTracer = require('jaeger-client').initTracerFromEnv
 
   // Sampler set to const 1 to capture every request, do not do this for production
@@ -38,7 +36,7 @@ function initTracer (serviceName) {
   return initJaegerTracer(config)
 }
 
-function tracingMiddleWare (req, res, next) {
+function tracingMiddleWare(req, res, next) {
   const wireCtx = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
   // Creating our span with context from incoming request
   const span = tracer.startSpan(req.path, { childOf: wireCtx })
