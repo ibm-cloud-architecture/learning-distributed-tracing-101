@@ -3,7 +3,7 @@ const tracer = opentracing.globalTracer()
 
 let counter = 1
 const sayHello = async (req, res) => {
-  // You can re-use the parent span or create a child span
+  // You can re-use the parent span to create a child span
   const span = tracer.startSpan('say-hello', { childOf: req.span })
 
   // Parse the handler input
@@ -14,18 +14,16 @@ const sayHello = async (req, res) => {
   // show how to set a baggage item for context propagation (be careful is expensive)
   span.setBaggageItem('my-baggage', name)
 
-  // simulate a slow request every 3 requests
-  setTimeout(async () => {
-    // let response = await formatGreeting(name, span);
-    const response = await formatGreetingRemote(name, span)
-    span.setTag('response', response)
-    span.finish()
-    res.send(response)
-  }, counter++ % 3 === 0 ? 100 : 0)
+  // let response = await formatGreeting(name, span);
+  const response = await formatGreetingRemote(name, span)
+  span.setTag('response', response)
+  span.finish()
+  res.send(response)
 }
 
 function formatGreeting(name, parent) {
   const span = tracer.startSpan('format-greeting', { childOf: parent })
+  span.log({ event: 'format', message: `formatting message locally for name ${name}` })
   const response = `Hello ${name}!`
   span.finish()
   return response

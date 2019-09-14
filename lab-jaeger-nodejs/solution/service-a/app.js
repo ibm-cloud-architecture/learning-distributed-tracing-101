@@ -37,6 +37,7 @@ function initTracer(serviceName) {
 }
 
 function tracingMiddleWare(req, res, next) {
+  const tracer = opentracing.globalTracer();
   const wireCtx = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
   // Creating our span with context from incoming request
   const span = tracer.startSpan(req.path, { childOf: wireCtx })
