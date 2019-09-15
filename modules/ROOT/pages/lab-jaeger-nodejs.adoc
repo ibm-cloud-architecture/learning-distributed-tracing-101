@@ -8,7 +8,7 @@ v1.0, 2019-09-08
 === Prerequisites
 
 * https://www.docker.com/products/docker-desktop[Docker for Desktop]
-* https://docs.docker.com/compose/install[Docker Compose]
+* https://docs.docker.com/compose/install[docker-compose]
 * Code Editor
 ** I recommend https://code.visualstudio.com[VSCode]
 
@@ -17,7 +17,7 @@ v1.0, 2019-09-08
 
 The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
 
-Docker compose is already configured to run Jaeger
+docker-compose is already configured to run Jaeger
 
 
 == Test your environment
@@ -47,7 +47,7 @@ Hello Carlos!
 
 == Add clien libraries
 
-. Add the tracing client library for the node.js `service-a`, edit the file `service-a/package.json` and add the dependecy for `jaeger-client`
+. Add the tracing client library for the node.js `service-a`, edit the file `service-a/package.json` and add the dependency for `jaeger-client`
 The json section should look like the following:
 +
 [source, json]
@@ -91,7 +91,7 @@ const opentracing = require('opentracing')
 opentracing.initGlobalTracer(tracer)
 ----
 
-. Create a function at the end of the file `service/app.js` with the following code to trace every incomming http request.
+. Create a function at the end of the file `service/app.js` with the following code to trace every incoming http request.
 +
 [source, javascript]
 ----
@@ -139,10 +139,10 @@ function tracingMiddleWare (req, res, next) {
 ----
 
 +
-This function will extract the tracing headers from the incomming http request using the function `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)`
+This function will extract the tracing headers from the incoming http request using the function `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)`
 
 +
-With this information, if the request contains a trace information, it will be use to create a child span this way the previous service, the current service are associated int he tracing dependency graph.
+With this information, if the request contains trace information it will be used to create a child span from the previous service, the current service will be correctly associated in the tracing dependency graph.
 
 +
 The new span is created using the function `tracer.startSpan(req.path, { childOf: wireCtx })`
@@ -161,7 +161,7 @@ res.set(responseHeaders)
 ----
 
 +
-The `span` is stored in the `req` object, this way the main endpoint handler can use it in case of attaching information into the same span or creating a new child span using this top level `span` as parent.
+The `span` is stored in the `req` object, this way the main endpoint handler can use it in case of attaching information into the same span or creating a new child span using this top-level `span` as a parent.
 +
 [source, javascript]
 ----
@@ -169,7 +169,7 @@ Object.assign(req, { span })
 ----
 
 +
-When the request is finished by listening on the event `finish` in `res.on('finish', finishSpan)` the response is analyzed to check if there was an error, if it is an error then the span is set to be sampled, and marked as error using the following functions including a log event:
+When the request is finished by listening on the event `finish` in `res.on('finish', finishSpan)` the response is analyzed to check if there was an error, if it is an error then the span is set to be sampled and marked as error using the following functions including a log event:
 +
 [source, javascript]
 ----
@@ -195,7 +195,7 @@ span.finish()
 app.use(tracingMiddleWare)
 ----
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -218,11 +218,11 @@ Hello Carlos!
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-service-a-find-trace.jpg[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be process by your service business logic. In this example it tool `4ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it tool `4ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -245,7 +245,7 @@ image::nodejs-service-a-error-details.jpg[]
 
 == Finding slow http requests
 
-In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behaivor that not all responses are fast, every often the response is 100x slower. 
+In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is 100x slower. 
 
 . Stop docker-compose with `Ctrl+C` and start it again.
 [source, bash]
@@ -272,12 +272,12 @@ done;
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-service-a-slow.jpg[]
 
 +
-In the picture above, you can see a time line graph with each trace represented with a circle, in this case we have 15 traces in the result set when we clicked `Find Traces`. 
+In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked `Find Traces`. 
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
 You can see the pattern that only every 3rd request the response is slow.
 When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
@@ -306,7 +306,7 @@ const response = await formatGreeting(name);
 res.send(response)
 ----
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -331,7 +331,7 @@ done;
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-service-a-fast.jpg[]
 
@@ -339,11 +339,11 @@ image::nodejs-service-a-fast.jpg[]
 You can see now that all http requests are fast and the problem is fixed
 
 +
-Cloud native applications can be compose of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increasing the observability of your applications.
+Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.
 
 == Tracing an http handler
 
-In the previous example we were able to identify the endpoing `/sayHello` as one of interest in our service. Lets see how can we add tracing instrumentation to the function that is handling this endpoint.
+In the previous example, we were able to identify the endpoint `/sayHello` as one of interest in our service. Let's see how can we add tracing instrumentation to the function that is handling this endpoint.
 
 . Import at the top of the file `service-a/hello.js` the `opentracing` module, and get the global tracer
 +
@@ -405,7 +405,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -430,7 +430,7 @@ Hello Carlos!
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-service-a-2-spans.jpg[]
 
@@ -443,11 +443,11 @@ image::nodejs-service-a-span-details.jpg[]
 
 +
 Notice in the Tags section the tag is located with key `name` and the string value `Hello Carlos!`.
-Notive in the Logs section the log event with the name `name` and the message `this is a log message for name Carlos`
+Notice in the Logs section the log event with the name `name` and the message `this is a log message for name Carlos`
 
 == Tracing a function
 
-The http handler usually call other functions to perform the business logic, when calling another function within the same service you can create a child span.
+The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
 
 . The `sayHello` handler calls the function `formatGreeting` to process the input `name`. Pass the current span as an additional parammeter `formatGreeting(name, span)`
 +
@@ -478,7 +478,7 @@ function formatGreeting(name, parent) {
 }
 ----
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -503,7 +503,7 @@ Hello Carlos!
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-service-a-3-spans.jpg[]
 
@@ -519,11 +519,11 @@ Notice the cascading effect between the three spans, the span `format-greeting` 
 
 == Distributing Tracing
 
-You can have a single trace that goes across multiple services, this allows to have distributing tracing and better observability on the interactions between services.
+You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.
 
 In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message. 
 
-For the following example we are going to use a remote service `service-a` to format the message, and returning the formatted greeting message back to the http client.
+For the following example, we are going to use a remote service `service-a` to format the message, and returning the formatted greeting message to the http client.
 
 . In the file `service-a/hello.js` located the handler function `sayHello` and replace the function call `formatGreeting(name, span)` with `formatGreetingRemote(name, span)`.
 +
@@ -540,7 +540,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. In the function `formatGreetingRemote` use the function `tracer.inject` to extract the span context and inject them into the `headers` of the http request when calling the remote servier `service-b` endpoint `/formatGreeting`.
+. In the function `formatGreetingRemote` use the function `tracer.inject` to extract the span context and inject them into the `headers` of the http request when calling the remote service `service-b` endpoint `/formatGreeting`.
 +
 [source, javascript]
 ----
@@ -609,7 +609,7 @@ function formatGreeting(req, res) {
 ----
 
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -634,7 +634,7 @@ Hello Carlos!
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
 image::nodejs-services-b-trace.jpg[]
 
@@ -663,9 +663,9 @@ Notice the time for the second log message `formatting message remotely for name
 +
 Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.
 
-=== Baggage propagation
+== Baggage propagation
 
-Imagine a scenario where you want to redirect all Safari users to a specific version of a service using theUser-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.
+Imagine a scenario where you want to redirect all Safari users to a specific version of a service using theUser-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.
 
 Baggage items are key:value string pairs that apply to the given Span, its SpanContext, and all Spans which directly or transitively reference the local Span. That is, baggage items propagate in-band along with the trace itself.
 
@@ -704,7 +704,7 @@ function formatGreeting(req, res) {
 }
 ----
 
-. Build and run the service. If docker compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
+. Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
 [source, bash]
 ----
@@ -727,7 +727,7 @@ Hello Carlos!
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop down options and click `Find Traces`. Expand the section `Logs` for the spans `say-hello` and `format-greeting`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`. Expand the section `Logs` for the spans `say-hello` and `format-greeting`
 +
 image::nodejs-service-b-baggage.jpg[]
 
@@ -737,9 +737,9 @@ Notice that the baggage is set in the `service-a` with the value `Carlos` this b
 
 == Searching Traces
 
-If you have a specific traceid you can search for it by putting the trace id on the top left search box.
+If you have a specific trace id you can search for it by putting the trace id on the top left search box.
 
-You can also use a tag to search for example searching traces that have a a specific http status code, or one of the custom tags we added to a span.
+You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.
 
 . To search for traces using http method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
 +
@@ -749,7 +749,7 @@ image::jaeger-ui-search.jpg[]
 == Dependency graph
 
 
-The Jaeger UI has a view for service depdendencies, it shows a visual Directed acyclic graph (DAG).
+The Jaeger UI has a view for service dependencies, it shows a visual Directed acyclic graph (DAG).
 
 Click the tab `Dependencies`, then click the `DAG` tab.
 
@@ -757,7 +757,7 @@ image::jaeger-ui-dependencies-dag-1.jpg[]
 
 Notice that the graph shows the direction with an arrow flowing from `service-a` to `service-b`. It also shows the number of traces between the services.
 
-This is is a simple example and there is not much value for small set of services, but when a large number of services each with multiple endpoints then the graph becomes more interesting like the following example:
+This is is a simple example and there is not much value for a small set of services, but when a large number of services each with multiple endpoints then the graph becomes more interesting like the following example:
 
 image::jaeger-ui-dependencies-dag-2.jpg[]
 
