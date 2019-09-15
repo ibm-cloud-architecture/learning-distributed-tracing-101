@@ -749,7 +749,16 @@ image::jaeger-ui-search.jpg[]
 == Dependency graph
 
 
+The Jaeger UI has a view for service depdendencies, it shows a visual Directed acyclic graph (DAG).
 
-jaeger-ui-dependencies-dag-1
+Click the tab `Dependencies`, then click the `DAG` tab.
+
+image::jaeger-ui-dependencies-dag-1.jpg[]
+
+Notice that the graph shows the direction with an arrow flowing from `service-a` to `service-b`. It also shows the number of traces between the services.
+
+This is is a simple example and there is not much value for small set of services, but when a large number of services each with multiple endpoints then the graph becomes more interesting like the following example:
+
+image::jaeger-ui-dependencies-dag-2.jpg[]
 
 
