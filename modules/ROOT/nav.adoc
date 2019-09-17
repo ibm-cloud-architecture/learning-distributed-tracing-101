@@ -1,6 +1,6 @@
 * xref:index.adoc[Overview]
 * xref:distributing_tracing.adoc[Distributing Tracing]
 * xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js]
-* xref:lab-jaeger-java.adoc[Lab Jaeger - Java]
+* xref:lab-jaeger-java.adoc[Lab Jaeger - Java(WIP)]
 * xref:references.adoc[References]
 
