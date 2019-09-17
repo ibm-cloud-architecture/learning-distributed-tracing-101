@@ -222,7 +222,7 @@ open http://localhost:16686/jaeger
 +
 image::nodejs-service-a-find-trace.jpg[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two log events, one with `preHandle` and the final log `afterCompletion` this gives you how much time the request took to be processed by your service business logic. In this example it took `8-2=6ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it tool `4ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -231,7 +231,7 @@ image::nodejs-service-a-trace-details.jpg[]
 [source, bash]
 ----
 curl http://localhost:8080/error -v
-HTTP/1.1 500
+some error (ノ ゜Д゜)ノ ︵ ┻━┻
 ----
 
 
