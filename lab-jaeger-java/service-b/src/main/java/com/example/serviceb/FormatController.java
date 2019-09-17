@@ -12,7 +12,7 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 
 @RestController
-public class HelloController {
+public class FormatController {
 
     @Autowired
     private Tracer tracer;

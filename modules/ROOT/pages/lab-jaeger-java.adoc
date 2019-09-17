@@ -74,136 +74,27 @@ The `pom.xml` section should look like the following:
 [# tracing-every-http-request]
 == Tracing every http request
 
-. Create a function at the end of the file `service-a/app.js` with the following code to initialize the Jaeger tracer.
+. Add A Bean to initialized the Tracer in the main Class in the file `src/main/java/com/example/servicea/DemoApplication.java`
 +
-[source, javascript]
+[source, java]
 ----
-function initTracer (serviceName) {
-  const initJaegerTracer = require('jaeger-client').initTracerFromEnv
-
-  // Sampler set to const 1 to capture every request, do not do this for production
-  const config = {
-    serviceName: serviceName
-  }
-  // Only for DEV the sampler will report every span
-  config.sampler = { type: 'const', param: 1 }
-
-  return initJaegerTracer(config)
+@Bean
+public io.opentracing.Tracer initTracer() {
+  SamplerConfiguration samplerConfig = new SamplerConfiguration().withType("const").withParam(1);
+  ReporterConfiguration reporterConfig = ReporterConfiguration.fromEnv().withLogSpans(true);
+  return Configuration.fromEnv("service-a").withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
 }
 ----
 
-. At line `7` add the following code to use the function `initTracer` to initialize the Tracer and set the tracer in `opentracing` .
+. Add the imports for jaegertracing in the file `src/main/java/com/example/servicea/DemoApplication.java`
 +
-[source, javascript]
+[source, java]
 ----
-const tracer = initTracer(serviceName)
-const opentracing = require('opentracing')
-opentracing.initGlobalTracer(tracer)
-----
-
-. Create a function at the end of the file `service/app.js` with the following code to trace every incoming http request.
-+
-[source, javascript]
-----
-function tracingMiddleWare (req, res, next) {
-  const tracer = opentracing.globalTracer();
-  const wireCtx = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
-  // Creating our span with context from incoming request
-  const span = tracer.startSpan(req.path, { childOf: wireCtx })
-  // Use the log api to capture a log
-  span.log({ event: 'request_received' })
-
-  // Use the setTag api to capture standard span tags for http traces
-  span.setTag(opentracing.Tags.HTTP_METHOD, req.method)
-  span.setTag(opentracing.Tags.SPAN_KIND, opentracing.Tags.SPAN_KIND_RPC_SERVER)
-  span.setTag(opentracing.Tags.HTTP_URL, req.path)
-
-  // include trace ID in headers so that we can debug slow requests we see in
-  // the browser by looking up the trace ID found in response headers
-  const responseHeaders = {}
-  tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, responseHeaders)
-  res.set(responseHeaders)
-
-  // add the span to the request object for any other handler to use the span
-  Object.assign(req, { span })
-
-  // finalize the span when the response is completed
-  const finishSpan = () => {
-    if (res.statusCode >= 500) {
-      // Force the span to be collected for http errors
-      span.setTag(opentracing.Tags.SAMPLING_PRIORITY, 1)
-      // If error then set the span to error
-      span.setTag(opentracing.Tags.ERROR, true)
-
-      // Response should have meaning info to futher troubleshooting
-      span.log({ event: 'error', message: res.statusMessage })
-    }
-    // Capture the status code
-    span.setTag(opentracing.Tags.HTTP_STATUS_CODE, res.statusCode)
-    span.log({ event: 'request_end' })
-    span.finish()
-  }
-  res.on('finish', finishSpan)
-  next()
-}
+import io.jaegertracing.Configuration;
+import io.jaegertracing.Configuration.ReporterConfiguration;
+import io.jaegertracing.Configuration.SamplerConfiguration;
 ----
 
-+
-This function will extract the tracing headers from the incoming http request using the function `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)`
-
-+
-With this information, if the request contains trace information it will be used to create a child span from the previous service, the current service will be correctly associated in the tracing dependency graph.
-
-+
-The new span is created using the function `tracer.startSpan(req.path, { childOf: wireCtx })`
-
-+
-The first activity captured is a log event of `request_end` with the function `span.log({ event: 'request_received' })`
-
-+
-The new span context is added to the http response, this way the http client can have this information in case of troubleshooting a particular http request.
-+
-[source, javascript]
-----
-const responseHeaders = {}
-tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, responseHeaders)
-res.set(responseHeaders)
-----
-
-+
-The `span` is stored in the `req` object, this way the main endpoint handler can use it in case of attaching information into the same span or creating a new child span using this top-level `span` as a parent.
-+
-[source, javascript]
-----
-Object.assign(req, { span })
-----
-
-+
-When the request is finished by listening on the event `finish` in `res.on('finish', finishSpan)` the response is analyzed to check if there was an error, if it is an error then the span is set to be sampled and marked as error using the following functions including a log event:
-+
-[source, javascript]
-----
-span.setTag(opentracing.Tags.SAMPLING_PRIORITY, 1)
-span.setTag(opentracing.Tags.ERROR, true)
-span.log({ event: 'error', message: res.statusMessage })
-----
-
-+
-For every http response the status Code is captured, a log event `request_end` that will easily see the time spent since the log event `request_start` . Finaly the span needs to be finished.
-+
-[source, javascript]
-----
-span.setTag(opentracing.Tags.HTTP_STATUS_CODE, res.statusCode)
-span.log({ event: 'request_end' })
-span.finish()
-----
-
-. At line `12` add the following code to use the function `tracingMiddleWare` as the first middleware to handle every http request.
-+
-[source, javascript]
-----
-app.use(tracingMiddleWare)
-----
 
 . Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
@@ -230,9 +121,9 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-service-a-find-trace.jpg[]
+image::java-service-a-find-trace.jpg[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it tool `4ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it took `4ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -255,7 +146,7 @@ image::nodejs-service-a-error-details.jpg[]
 
 == Finding slow http requests
 
-In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is 100x slower. 
+In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is 100x slower.
 
 . Stop docker-compose with `Ctrl+C` and start it again.
 [source, bash]
@@ -270,7 +161,7 @@ docker-compose up
 [source, bash]
 ----
 i=0;
-while [ $i -lt 15 ]; 
+while [ $i -lt 15 ];
 do curl http://localhost:8080/sayHello/Carlos -I -s | head -n 1; i=$((i+1));
 done;
 ----
@@ -287,7 +178,7 @@ open http://localhost:16686/jaeger
 image::nodejs-service-a-slow.jpg[]
 
 +
-In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked `Find Traces`. 
+In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked `Find Traces`.
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
 You can see the pattern that only every 3rd request the response is slow.
 When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
@@ -329,7 +220,7 @@ docker-compose up
 [source, bash]
 ----
 i=0;
-while [ $i -lt 15 ]; 
+while [ $i -lt 15 ];
 do curl http://localhost:8080/sayHello/Carlos -I -s | head -n 1; i=$((i+1));
 done;
 ----
@@ -531,7 +422,7 @@ Notice the cascading effect between the three spans, the span `format-greeting` 
 
 You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.
 
-In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message. 
+In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message.
 
 For the following example, we are going to use a remote service `service-a` to format the message, and returning the formatted greeting message to the http client.
 
@@ -568,7 +459,7 @@ const formatGreetingRemote = async (name, span) => {
 }
 ----
 
-. The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`. 
+. The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`.
 
 . Locate the file file `service-b/formatter.js` and add
 
@@ -666,10 +557,10 @@ image::nodejs-services-b-logs.jpg[]
 
 +
 Notice on the right side, each span has a summary each with the associated `Service`, `Duration`, and `Start Time`. The `Start Time` of a span marks the end time from the previous span.
-+ 
-Notice the time for the first log message `this is a log message for name Carlos` in `service-a` is of 1ms, this means this log event happened 1ms after the trace started. 
 +
-Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 12ms, this means this log event happened 12ms after the trace started in `service-a`. 
+Notice the time for the first log message `this is a log message for name Carlos` in `service-a` is of 1ms, this means this log event happened 1ms after the trace started.
++
+Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 12ms, this means this log event happened 12ms after the trace started in `service-a`.
 +
 Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.
 

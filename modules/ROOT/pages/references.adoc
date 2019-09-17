@@ -1,0 +1,25 @@
+= References
+Carlos Santana <csantana@us.ibm.com>
+v1.0, 2019-09-16
+:imagesdir: images
+:toc:
+
+== Tracing client libraries
+There are many client libraries for opentracing, jaeger, and zipkin pickig the corrent ones can be a challenge
+
+* OpenTracing
+** Node.js
+*** https://github.com/opentracing/opentracing-javascript (on npm `opentracing`)
+*** https://opentracing.io/guides/javascript/
+* Jaeger
+** Node.js
+*** https://github.com/jaegertracing/jaeger-client-node (on npm `jaeger-client`)
+*** https://www.jaegertracing.io/docs/1.11/client-features/
+
+
+
+== Resources
+* Repo for the book Mastering Distributed Tracing by Yuri Shkuro https://github.com/PacktPublishing/Mastering-Distributed-Tracing
+* OpenTracing Tutorial https://github.com/yurishkuro/opentracing-tutorial
+* OpenTracing API Documentation https://doc.esdoc.org/github.com/opentracing/opentracing-javascript/identifiers.html
+

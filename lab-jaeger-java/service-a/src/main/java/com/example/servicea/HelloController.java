@@ -2,6 +2,8 @@ package com.example.servicea;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 public class HelloController {
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @GetMapping("/sayHello/{name}")
     public String sayHello(@PathVariable String name) {
         String response = formatGreeting(name);
@@ -25,9 +30,6 @@ public class HelloController {
         String response = "Hello " + name + "!";
         return response;
     }
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     private String formatGreetingRemote(String name) {
         String serviceName = System.getenv("SERVICE_FORMATTER");

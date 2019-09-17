@@ -1,11 +1,11 @@
 # our base build image
-FROM maven:3.3-jdk-8 as builder
+FROM maven:3.6.2-jdk-8 as builder
 
 # copy the project files
-COPY ./pom.xml ./pom.xml
+COPY pom.xml .
 
 # build all dependencies
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline
 
 # copy your other files
 COPY ./src ./src
