@@ -230,12 +230,12 @@ image::nodejs-service-a-trace-details.jpg[]
 +
 [source, bash]
 ----
-curl http://localhost:8080/error -v
+curl http://localhost:8080/error
 some error (ノ ゜Д゜)ノ ︵ ┻━┻
 ----
 
 
-. Click `Find Traces` now it should show a trave mark with `Error` in red.
+. Click `Find Traces` now it should show a trace mark with `Error` in red.
 +
 image::nodejs-service-a-error.jpg[]
 
@@ -245,7 +245,7 @@ image::nodejs-service-a-error-details.jpg[]
 
 == Finding slow http requests
 
-In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is 100x slower.
+In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow about 100ms.
 
 . Stop docker-compose with `Ctrl+C` and start it again.
 [source, bash]
