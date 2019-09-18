@@ -17,12 +17,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 public class HelloController {
 
+    static int counter = 1;
+
     @Autowired
     private RestTemplate restTemplate;
 
     @GetMapping("/sayHello/{name}")
     public String sayHello(@PathVariable String name) {
         String response = formatGreeting(name);
+
+        // simulate a slow request every 3 requests
+        try {
+            if (counter++ % 3 == 0) {
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         return response;
     }
 

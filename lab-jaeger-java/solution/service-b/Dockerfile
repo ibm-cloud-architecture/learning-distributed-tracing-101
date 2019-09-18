@@ -23,7 +23,7 @@ RUN apt-get update \
 
 
 # Copy jar file over from builder stage
-ENV JAR_NAME=serviceb-0.0.1-SNAPSHOT.jar
+ENV JAR_NAME=solution-serviceb-0.0.1-SNAPSHOT.jar
 COPY --from=builder target/$JAR_NAME ./app.jar
 
 ENV JAVA_OPTS=""
