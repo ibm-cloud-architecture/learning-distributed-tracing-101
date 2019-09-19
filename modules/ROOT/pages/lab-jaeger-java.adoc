@@ -7,6 +7,7 @@ v1.0, 2019-09-14
 [discrete]
 === Prerequisites
 
+* Connection to the internet (docker.io, github.com, maven repo, npm registry)
 * https://www.docker.com/products/docker-desktop[Docker for Desktop]
 * https://docs.docker.com/compose/install[docker-compose]
 * Code Editor
@@ -14,6 +15,18 @@ v1.0, 2019-09-14
 
 [discrete]
 === General Instructions
+
+. Clone the git repository
+[source, bash]
+----
+git clone https://github.com/csantanapr/learning-distrubing-tracing-101.git
+----
+
+. Change to the lab directory
+[source, bash]
+----
+cd lab-jaeger-java/solution
+----
 
 The solution to the lab is located in the directory `lab-jaeger-java/solution`
 
@@ -24,6 +37,7 @@ docker-compose is already configured to run Jaeger
 
 . Change directory to the lab:
 +
+[source, bash]
 ----
 cd lab-jaeger-java
 ----
@@ -31,6 +45,7 @@ cd lab-jaeger-java
 
 . Test the service without tracing enable
 +
+[source, bash]
 ----
 docker-compose build
 docker-compose up
@@ -38,6 +53,7 @@ docker-compose up
 
 . Try the service
 +
+[source, bash]
 ----
 curl http://localhost:8080/sayHello/Carlos
 Hello Carlos!
@@ -121,9 +137,9 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::java-service-a-find-trace.jpg[]
+image::java-service-a-find-trace.png[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` se to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it took `4ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section have two logs one with `preHandle` and the final log `afterCompletion` this gives you how much time the request took to be processed by your service business logic. In this example it took `8ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -138,11 +154,11 @@ HTTP/1.1 500
 
 . Click `Find Traces` now it should show a trace with the error endpoint.
 +
-image::nodejs-service-a-error.jpg[]
+image::java-service-a-error.png[]
 
-. Click on the trace with the `Error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as `error` set to `true` and `http.status_code` se to `500`.
+. Click on the trace with the `/error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as the `http.status_code` se to `500`.
 +
-image::nodejs-service-a-error-details.jpg[]
+image::java-service-a-error-details.png[]
 
 == Finding slow http requests
 
@@ -175,7 +191,7 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-service-a-slow.jpg[]
+image::java-service-a-slow.png[]
 
 +
 In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked `Find Traces`.
@@ -185,27 +201,25 @@ When troubleshooting we are interested first on the slowest requests, you can cl
 
 . Select the trace that took the longest time 103ms, expand all the information for the single span operation `/sayHello` including tags and logs.
 +
-image::nodejs-service-a-slow-details.jpg[]
+image::java-service-a-slow-details.png[]
 
 
-. The handler has a sleep step in the function `sayHello` that delays the response every 3rd request. Open the file `service-a/hello.js` and located the culprit code.
+. The handler has a sleep step in the method `sayHello` that delays the response every 3rd request. Open the file `ssrc/main/java/com/example/servicea/HelloController.java` and locate the culprit code.
 +
-[source, javascript]
+[source, java]
 ----
 // simulate a slow request every 3 requests
-setTimeout(async () => {
-  const response = await formatGreeting(name);
-  res.send(response)
-}, counter++ % 3 === 0 ? 100 : 0)
+try {
+    if (counter++ % 3 == 0) {
+        Thread.sleep(100);
+    }
+} catch (InterruptedException e) {
+    // TODO Auto-generated catch block
+    e.printStackTrace();
+}
 ----
 
-. Remove the `setTimeout` function and replace it with the two functions `formatGreeting` and `res.send`.
-+
-[source, javascript]
-----
-const response = await formatGreeting(name);
-res.send(response)
-----
+. Remove the `try/catch` block and save the file `HelloController.java`.
 
 . Build and run the service. If docker-compose is already running in the terminal enter `Ctrl+C` to exit and stop the containers.
 +
@@ -234,7 +248,7 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-service-a-fast.jpg[]
+image::java-service-a-fast.png[]
 
 +
 You can see now that all http requests are fast and the problem is fixed
