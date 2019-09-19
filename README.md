@@ -21,17 +21,10 @@ Learn how to:
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - Code Editor - I recommend [VSCode](https://code.visualstudio.com/)
 
-## Node.js Lab
-Change directory to the lab:
-```
-cd lab-jaeger-nodejs
-```
-Follow the instructions for the [Lab - Distributing Tracing for Node.js](./modules/ROOT/pages/lab-jaeger-nodejs.adoc)
+## Learning Journey
+Access the learning modules https://csantanapr.github.io/learning-distrubing-tracing-101 
 
+This learning journey will get you started into Distributing Tracing, covering many basic concepts with hands-on labs. The journey takes you through frameworks, client libraries, and [Jaeger](https://www.jaegertracing.io/).
 
-## Java Lab
-Change directory to the lab:
-```
-cd lab-jaeger-java
-```
-Follow the instructions for the [Lab - Distributing Tracing for Java](./modules/ROOT/pages/lab-jaeger-java.adoc)
+## Contributing
+Please refer to the [how to contribute?](CONTRIBUTING.md) on how you can contribute to the learning documentation.
