@@ -8,30 +8,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
 @RestController
-public class HelloController {
+public class FormatController {
 
     @Autowired
     private Tracer tracer;
 
     @GetMapping("/formatGreeting")
     public String formatGreeting(@RequestParam String name) {
-        Span span = tracer.buildSpan("format-greeting-handler").start();
-        try {
+        try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+            Span span = scope.span();
+            span.log("formatting message remotely for name " + name);
             String response = "Hello, from service-b " + name + "!";
-            Map<String, String> fields = new LinkedHashMap<>();
-            fields.put("name", "this is a log message for name " + name);
-            // check the baggage
             String myBaggage = span.getBaggageItem("my-baggage");
-            fields.put("myBaggage", "this is baggage " + myBaggage);
-            span.log(fields);
-            span.setTag("response", response);
+            span.log("this is baggage " + myBaggage);
             return response;
-        } finally {
-            span.finish();
         }
     }
 }

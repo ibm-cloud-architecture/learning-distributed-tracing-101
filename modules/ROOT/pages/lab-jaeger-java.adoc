@@ -32,6 +32,7 @@ The solution to the lab is located in the directory `lab-jaeger-java/solution`
 
 docker-compose is already configured to run Jaeger
 
+In case that stopping docker-compose doesn't work with `Ctrl-C` you can stop using `docker-compose stop`
 
 == Test your environment
 
@@ -204,7 +205,7 @@ When troubleshooting we are interested first on the slowest requests, you can cl
 image::java-service-a-slow-details.png[]
 
 
-. The handler has a sleep step in the method `sayHello` that delays the response every 3rd request. Open the file `ssrc/main/java/com/example/servicea/HelloController.java` and locate the culprit code.
+. The handler has a sleep step in the method `sayHello` that delays the response every 3rd request. Open the file `src/main/java/com/example/servicea/HelloController.java` and locate the culprit code.
 +
 [source, java]
 ----
@@ -260,63 +261,84 @@ Cloud Native applications can be composed of microservices and each microservice
 
 In the previous example, we were able to identify the endpoint `/sayHello` as one of interest in our service. Let's see how can we add tracing instrumentation to the function that is handling this endpoint.
 
-. Import at the top of the file `service-a/hello.js` the `opentracing` module, and get the global tracer
+. Add the following imports at the top of the file `HelloController.java`
 +
-[source, javascript]
+[source, java]
 ----
-const opentracing = require('opentracing')
-const tracer = opentracing.globalTracer()
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 ----
 
-. Open the file `service-a/hello.js` and locate the function `sayHello`
+. In the class `HelloController` add the following Autowire to have access to the global tracer
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const name = req.params.name
-  const response = await formatGreeting(name);
-  res.send(response)
+@Autowired
+    private Tracer tracer;
+----
+
+. Locate the method `sayHello` and and wrap the code in a try with a scope, this will create a new child span.
++
+[source, java]
+----
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        String response = formatGreeting(name);
+        return response;
+    }
 }
 ----
 
-. Create a new child span using the parent span located in the `req` object as context.
-This will allow the trace to have an additional child span. Use the function `tracer.startSpan` and name the span `say-hello`.
+. Get a reference to the new child span `say-hello-handler` using the method `scope.span()`
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  const response = await formatGreeting(name);
-  res.send(response)
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        String response = formatGreeting(name);
+        return response;
+    }
 }
 ----
 
 . The opentracing API supports the method `log` you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  span.log({ event: 'name', message: `this is a log message for name ${name}` })
-  const response = await formatGreeting(name);
-  res.send(response)
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        // you can also log a string instead of a map, key=event value=<stringvalue>
+        // span.log("this is a log message for name " + name);
+        String response = formatGreeting(name);
+        return response;
+    }
 }
 ----
 
-. The opentracing API supports the method `setTag` you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the `span.finish()` when you are done instrumenting the span.
+. The opentracing API supports the method `setTag` you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using `true` in `.startActive(true)` there is no need to call explicit `span.finish()`. 
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  span.log({ event: 'name', message: `this is a log message for name ${name}` })
-  const response = await formatGreeting(name);
-  span.setTag('response', response)
-  span.finish()
-  res.send(response)
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        // you can also log a string instead of a map, key=event value=<stringvalue>
+        // span.log("this is a log message for name " + name);
+        String response = formatGreeting(name);
+        span.setTag("response", response);
+        return response;
+    }
 }
 ----
 
@@ -347,14 +369,14 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-service-a-2-spans.jpg[]
+image::java-service-a-2-spans.png[]
 
 +
 Notice in the result items table, for the trace item that the trace indicates that there are a total of two spans `2 Spans` and that service-a contains two spans `service-a (2)`
 
 . Click the trace, expand the spans `say-hello`, and then expand the `Tags` and `Logs` sections.
 +
-image::nodejs-service-a-span-details.jpg[]
+image::java-service-a-span-details.png[]
 
 +
 Notice in the Tags section the tag is located with key `name` and the string value `Hello Carlos!`.
@@ -364,32 +386,17 @@ Notice in the Logs section the log event with the name `name` and the message `t
 
 The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
 
-. The `sayHello` handler calls the function `formatGreeting` to process the input `name`. Pass the current span as an additional parammeter `formatGreeting(name, span)`
+. The `sayHello` handler calls the function `formatGreeting` to process the input `name`. In the method `formatGreeting` create a new span using `tracer.buildSpan` and name the span `format-greeting`. 
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  span.log({ event: 'name', message: `this is a log message for name ${name}` })
-  const response = await formatGreeting(name, span)
-  span.setTag('response', response)
-  span.finish()
-  res.send(response)
-}
-----
-
-. In the function `formatGreeting` create a new span using `tracer.startSpan`.
-Use the span from the http handler as `parent` span, name the span `format-greeting`. Remember to finish the span before returning with `span.finish()`.
-+
-[source, javascript]
-----
-function formatGreeting(name, parent) {
-  const span = tracer.startSpan('format-greeting', { childOf: parent })
-  span.log({ event: 'format', message: `formatting message locally for name ${name}` })
-  const response = `Hello ${name}!`
-  span.finish()
-  return response
+private String formatGreeting(String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message locally for name " + name);
+        String response = "Hello " + name + "!";
+        return response;
+    }
 }
 ----
 
@@ -420,14 +427,14 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-service-a-3-spans.jpg[]
+image::java-service-a-3-spans.png[]
 
 +
 Notice that the trace now contains three spans.
 
 . Click the trace, expand the spans `say-hello` and `format-greeting`, and then expand the `Logs` sections.
 +
-image::nodejs-service-a-span-formatter.jpg[]
+image::java-service-a-span-formatter.png[]
 
 +
 Notice the cascading effect between the three spans, the span `format-greeting` contains the message `formatting message locally for name Carlos` that we instrumented.
@@ -438,88 +445,98 @@ You can have a single trace that goes across multiple services, this allows to d
 
 In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message.
 
-For the following example, we are going to use a remote service `service-a` to format the message, and returning the formatted greeting message to the http client.
+For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the http client.
 
-. In the file `service-a/hello.js` located the handler function `sayHello` and replace the function call `formatGreeting(name, span)` with `formatGreetingRemote(name, span)`.
+. In the file `HelloController.java` locate the handler function `sayHello` and replace the function call `formatGreeting(name)` with `formatGreetingRemote(name)`.
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  span.log({ event: 'name', message: `this is a log message for name ${name}` })
-  const response = await formatGreetingRemote(name, span)
-  span.setTag('response', response)
-  span.finish()
-  res.send(response)
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        String response = formatGreetingRemote(name);
+        span.setTag("response", response);
+        return response;
+    }
 }
 ----
 
-. In the function `formatGreetingRemote` use the function `tracer.inject` to extract the span context and inject them into the `headers` of the http request when calling the remote service `service-b` endpoint `/formatGreeting`.
+. In the method `formatGreetingRemote` the http requestis automatically instrumented, and the tracing headers inserted  when calling the remote service `service-b` endpoint `/formatGreeting`.
 +
-[source, javascript]
+[source, java]
 ----
-const bent = require('bent')
-
-const formatGreetingRemote = async (name, span) => {
-  const service = process.env.SERVICE_FORMATTER || 'localhost'
-  const servicePort = process.env.SERVICE_FORMATTER_PORT || '8081'
-  const url = `http://${service}:${servicePort}/formatGreeting?name=${name}`
-  const headers = {}
-  tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, headers)
-  const request = bent('string', headers)
-  const response = await request(url)
-  return response
+private String formatGreetingRemote(String name) {
+    String serviceName = System.getenv("SERVICE_FORMATTER");
+    if (serviceName == null) {
+        serviceName = "localhost";
+    }
+    String urlPath = "http://" + serviceName + ":8081/formatGreeting";
+    URI uri = UriComponentsBuilder //
+            .fromHttpUrl(urlPath) //
+            .queryParam("name", name).build(Collections.emptyMap());
+    ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+    return response.getBody();
 }
 ----
 
 . The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`.
 
-. Locate the file file `service-b/formatter.js` and add
-
-. Import at the top of the file `service-b/formatter.js` the `opentracing` module, and get the global tracer
+. Import at the top of the file `src/main/java/com/example/serviceb/FormatController.java` the `opentracing` libraries.
 +
-[source, javascript]
+[source, java]
 ----
-const opentracing = require('opentracing')
-const tracer = opentracing.globalTracer()
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 ----
 
-. Located the http handler function `formatGreeting` in the file `service-b/formatter.js`
+. In the class `FormatController` add the following Autowire to have access to the global tracer
 +
-[source, javascript]
+[source, java]
 ----
-function formatGreeting(req, res) {
-  const name = req.query.name
-  const response = `Hello from service-b ${name}!`
-  res.send(response)
+@Autowired
+    private Tracer tracer;
+----
+
+. Located the http handler function `formatGreeting` in the file `FormatController.java`
++
+[source, java]
+----
+public String formatGreeting(@RequestParam String name) {
+    String response = "Hello, from service-b " + name + "!";
+    return response;
 }
 ----
 
 . Create a new child span using the parent span located in the `req` object as context.
 This will allow the trace to have an additional child span. Use the function `tracer.startSpan` and name the span `format-greeting`.
 +
-[source, javascript]
+[source, java]
 ----
-function formatGreeting(req, res) {
-  const span = tracer.startSpan('format-greeting', { childOf: req.span })
-  const name = req.query.name
-  const response = `Hello from service-b ${name}!`
-  res.send(response)
+public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        String response = "Hello, from service-b " + name + "!";
+        return response;
+    }
 }
 ----
 
-. Add a log event `format` to the new span using the method `span.log`. Remember to call the `span.finish()` when you are done instrumenting the span.
+. Add a log event to the new span using the method `span.log`.
 +
-[source, javascript]
+[source, java]
 ----
-function formatGreeting(req, res) {
-  const span = tracer.startSpan('format-greeting', { childOf: req.span })
-  const name = req.query.name
-  span.log({ event: 'format', message: `formatting message remotely for name ${name}` })
-  const response = `Hello from service-b ${name}!`
-  span.finish()
-  res.send(response)
+public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message remotely for name " + name);
+        String response = "Hello, from service-b " + name + "!";
+        return response;
+    }
 }
 ----
 
@@ -551,30 +568,30 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`
 +
-image::nodejs-services-b-trace.jpg[]
+image::java-services-b-trace.png[]
 
 +
-Notice that the trace contains a total of four spans `4 Spans` two for `service-a(2)` and two for `service-b(2)`
+Notice that the trace contains a total of four spans `5 Spans` two for `service-a(3)` and two for `service-b(2)`
 
 . Click the trace to drill down to get more details.
 +
-image::nodejs-services-b-spans.jpg[]
+image::java-services-b-spans.png[]
 
 +
-Notice in the top section, the summary which includes the `Trace Start`, `Duration: 19ms`, `Services: 2`, `Depth: 4` and `Total Spans: 4`.
+Notice in the top section, the summary which includes the `Trace Start`, `Duration: 16ms`, `Services: 2`, `Depth: 5` and `Total Spans: 5`.
 +
-Notice the bottom section on how the total duration of 19ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 4ms, meaning that for this single http request `service-a` spent 15ms and `service-b` spent 4ms.
+Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 5ms, meaning that for this single http request `service-a` spent 11ms and `service-b` spent 5ms.
 
 . Expand the `Logs` sections for both spans `say-hello` from `service-a` and  `format-greeting` from `service-b`.
 +
-image::nodejs-services-b-logs.jpg[]
+image::java-services-b-logs.png[]
 
 +
 Notice on the right side, each span has a summary each with the associated `Service`, `Duration`, and `Start Time`. The `Start Time` of a span marks the end time from the previous span.
 +
 Notice the time for the first log message `this is a log message for name Carlos` in `service-a` is of 1ms, this means this log event happened 1ms after the trace started.
 +
-Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 12ms, this means this log event happened 12ms after the trace started in `service-a`.
+Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 4.98ms, this means this log event happened 4.98ms after the trace started in `service-a`.
 +
 Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.
 
@@ -588,34 +605,39 @@ Baggage items enable powerful functionality given a full-stack OpenTracing integ
 
 Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.
 
-. Locate the http handler `sayHello` in the file `service-a/hello.js`. Use the method `span.setBaggageItem('my-baggage', name)` before the function call `formatGreetingRemote(name, span)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
+. Locate the http handler `sayHello` in the file `HelloControlle.java`. Use the method `span.setBaggageItem('my-baggage', name)` before the method call `formatGreetingRemote(name)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
 
 +
-[source, javascript]
+[source, java]
 ----
-const sayHello = async (req, res) => {
-  const span = tracer.startSpan('say-hello', { childOf: req.span })
-  const name = req.params.name
-  span.log({ event: 'name', message: `this is a log message for name ${name}` })
-  span.setBaggageItem('my-baggage', name)
-  const response = await formatGreetingRemote(name, span)
-  span.setTag('response', response)
-  span.finish()
-  res.send(response)
+public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map<String, String> fields = new LinkedHashMap<>();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        span.setBaggageItem("my-baggage", name);
+        String response = formatGreetingRemote(name);
+        span.setTag("response", response);
+        return response;
+    }
 }
 ----
 
-. Locate the http handler `formatGreeting` in the file `service-b/formatter.js`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
+. Locate the http handler `formatGreeting` in the file `FormatController.java`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
++
+[source, java]
 ----
-function formatGreeting(req, res) {
-  const span = tracer.startSpan('format-greeting', { childOf: req.span })
-  const name = req.query.name
-  span.log({ event: 'format', message: `formatting message remotely for name ${name}` })
-  const response = `Hello from service-b ${name}!`
-  const baggage = span.getBaggageItem('my-baggage')
-  span.log({ event: 'baggage', message: `this is baggage ${baggage}` })
-  span.finish()
-  res.send(response)
+public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message remotely for name " + name);
+        String response = "Hello, from service-b " + name + "!";
+        String myBaggage = span.getBaggageItem("my-baggage");
+        span.log("this is baggage " + myBaggage);
+        return response;
+    }
 }
 ----
 
@@ -644,7 +666,7 @@ open http://localhost:16686/jaeger
 
 . Select the Service `service-a` from the drop-down options and click `Find Traces`. Expand the section `Logs` for the spans `say-hello` and `format-greeting`
 +
-image::nodejs-service-b-baggage.jpg[]
+image::java-service-b-baggage.png[]
 
 +
 Notice that the baggage is set in the `service-a` with the value `Carlos` this baggage is propagated to all spans local or remote. In the `server-b` span you can see the baggage value `Carlos` is propagated.
@@ -658,7 +680,7 @@ You can also use a tag to search for example searching traces that have a specif
 
 . To search for traces using http method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
 +
-image::jaeger-ui-search.jpg[]
+image::jaeger-ui-search.png[]
 
 
 == Dependency graph

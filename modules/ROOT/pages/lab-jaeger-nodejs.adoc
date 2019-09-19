@@ -29,7 +29,10 @@ cd lab-jaeger-nodejs
 ----
 
 The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
+
 docker-compose is already configured to run Jaeger
+
+In case that stopping docker-compose doesn't work with `Ctrl-C` you can stop using `docker-compose stop`
 
 
 == Test your environment
@@ -535,9 +538,9 @@ You can have a single trace that goes across multiple services, this allows to d
 
 In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message.
 
-For the following example, we are going to use a remote service `service-a` to format the message, and returning the formatted greeting message to the http client.
+For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the http client.
 
-. In the file `service-a/hello.js` located the handler function `sayHello` and replace the function call `formatGreeting(name, span)` with `formatGreetingRemote(name, span)`.
+. In the file `service-a/hello.js` locate the handler function `sayHello` and replace the function call `formatGreeting(name, span)` with `formatGreetingRemote(name, span)`.
 +
 [source, javascript]
 ----
@@ -703,6 +706,8 @@ const sayHello = async (req, res) => {
 ----
 
 . Locate the http handler `formatGreeting` in the file `service-b/formatter.js`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
++
+[source, javascript]
 ----
 function formatGreeting(req, res) {
   const span = tracer.startSpan('format-greeting', { childOf: req.span })
@@ -755,7 +760,7 @@ You can also use a tag to search for example searching traces that have a specif
 
 . To search for traces using http method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
 +
-image::jaeger-ui-search.jpg[]
+image::jaeger-ui-search.png[]
 
 
 == Dependency graph

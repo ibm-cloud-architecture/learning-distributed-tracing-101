@@ -17,44 +17,43 @@ import org.springframework.web.util.UriComponentsBuilder;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
 
 @RestController
 public class HelloController {
+
+    static int counter = 1;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
     private Tracer tracer;
 
     @GetMapping("/sayHello/{name}")
     public String sayHello(@PathVariable String name) {
-        Span span = tracer.buildSpan("say-hello-handler").start();
-        try (Scope scope = tracer.scopeManager().activate(span, false)) {
-            span.setBaggageItem("my-baggage", name);
+        try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+            Span span = scope.span();
             Map<String, String> fields = new LinkedHashMap<>();
-            fields.put("name", "this is a log message for name " + name);
+            fields.put("event", name);
+            fields.put("message", "this is a log message for name " + name);
             span.log(fields);
-            // String response = formatGreeting(name, span);
+            // you can also log a string instead of a map, key=event value=<stringvalue>
+            // span.log("this is a log message for name " + name);
+            span.setBaggageItem("my-baggage", name);
             String response = formatGreetingRemote(name);
             span.setTag("response", response);
             return response;
-        } finally {
-            span.finish();
         }
     }
 
-    private String formatGreeting(String name, Span parent) {
-        Span span = tracer.buildSpan("format-greeting").asChildOf(parent).start();
-        try {
-            String response = "Hello, " + name + "!";
-            span.log("formmating string locally: " + name);
+    private String formatGreeting(String name) {
+        try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+            Span span = scope.span();
+            span.log("formatting message locally for name " + name);
+            String response = "Hello " + name + "!";
             return response;
-        } finally {
-            span.finish();
         }
     }
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     private String formatGreetingRemote(String name) {
         String serviceName = System.getenv("SERVICE_FORMATTER");
@@ -62,25 +61,16 @@ public class HelloController {
             serviceName = "localhost";
         }
         String urlPath = "http://" + serviceName + ":8081/formatGreeting";
-        try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
-            URI uri = UriComponentsBuilder //
-                    .fromHttpUrl(urlPath) //
-                    .queryParam("name", name).build(Collections.emptyMap());
-            scope.span().log("formmating string remotely: " + name);
-            Tags.SPAN_KIND.set(scope.span(), Tags.SPAN_KIND_CLIENT);
-            Tags.HTTP_METHOD.set(scope.span(), "GET");
-            Tags.HTTP_URL.set(scope.span(), urlPath);
-            ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-            return response.getBody();
-        }
+        URI uri = UriComponentsBuilder //
+                .fromHttpUrl(urlPath) //
+                .queryParam("name", name).build(Collections.emptyMap());
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        return response.getBody();
 
     }
 
     @GetMapping("/error")
     public ResponseEntity<String> replyError() {
-        Span span = tracer.activeSpan();
-        Tags.ERROR.set(span, true);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-
     }
 }
