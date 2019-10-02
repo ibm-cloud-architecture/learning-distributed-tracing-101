@@ -62,7 +62,7 @@ Hello Carlos!
 
 
 
-== Add clien libraries
+== Add client libraries
 
 . Add the tracing client library for the node.js `service-a`, edit the file `service-a/package.json` and add the dependency for `jaeger-client`
 The json section should look like the following:
