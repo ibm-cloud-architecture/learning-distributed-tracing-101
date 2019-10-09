@@ -15,6 +15,7 @@ Learn how to:
 - Apply OpenTracing-recommended tags
 - Understand distributed context propagation
 - Use baggage to pass data through the call graph
+- Use Jaeger in Openshit/Kubernetes
 
 ## Prerequisites
 - [Docker for Desktop](https://www.docker.com/products/docker-desktop)
