@@ -1,0 +1,139 @@
+= Using Jaeger in OpenShift
+:imagesdir: images
+:toc:
+
+[discrete]
+=== General Instructions
+
+. Clone the git repository
++
+[source, bash]
+----
+git clone https://github.com/csantanapr/learning-distrubing-tracing-101.git
+----
+
+. Change to the lab directory
++
+[source, bash]
+----
+cd lab-jaeger-ocp
+----
+
+== Understanding Jaeger
+
+* Read the OpenShift Documentation https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_arch/ossm-jaeger.html[Understanding Jaeger]
+
+== Installing the Jaeger operator
+
+* OpenShift 3
+** Install from OperatorHub.io https://operatorhub.io/operator/jaeger
+* OpenShift 4, You can use the CodeReady Containers for local development https://cloud.redhat.com/openshift/install/crc/installer-provisioned
+** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html#ossm-operator-install-jaeger_installing-ossm[Installing the Jaeger Operator on OpenShift 4]
+
+== Creating an instance of Jaeger
+
+Create a Custom Resource for Jaeger
+
+. Log in to the OpenShift Container Platform web console.
+. Select project `openshift-operators`
+. Navigate to **Operators → Installed Operators**
+. Click the **Jaeger Operator**
+. Under **Provided APIs** 
+. Click **Create Instance**
+. Edit namespace to your project for example `default`
+. Review yaml and Click Create
+
+. Verify the Jaeger services in the `default` namespace
++
+[source, bash]
+----
+oc get services -n default | grep jaeger
+my-jaeger-agent                ClusterIP      None            <none>                                 5775/TCP,5778/TCP,6831/TCP,6832/TCP      13m
+my-jaeger-collector            ClusterIP      172.30.31.3     <none>                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
+my-jaeger-collector-headless   ClusterIP      None            <none>                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
+my-jaeger-query                ClusterIP      172.30.244.60   <none>                                 443/TCP                                  13m
+----
+
+. Find the route to the Jaeger UI
++
+[source, bash]
+----
+oc get route my-jaeger        
+NAME        HOST/PORT                            PATH   SERVICES          PORT    TERMINATION   WILDCARD
+my-jaeger   my-jaeger-default.apps-crc.testing          my-jaeger-query   <all>   reencrypt     None
+----
+
+. Open the Jaeger UI in the browser using value HOST/PORT https://my-jaeger-default.apps-crc.testing
+
+== Deploy the Application
+
+. Deploy the services `service-a` and `service-b`
++
+Use the file `jaeger-nodejs.yaml` for Node.js or the file `jaeger-java.yaml` for Java
++
+Here is an example using Node.js services:
++
+[source, bash]
+----
+oc apply -f jaeger-nodejs.yaml
+----
+
+. Verify services are deployed and running:
++
+[source, bash]
+----
+oc get all -l app=service-a
+oc get all -l app=service-b
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/service-a-785975554d-5cql2   1/1     Running   0          19m
+pod/service-b-674b748766-t7464   1/1     Running   0          19m
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/service-a   ClusterIP   172.30.182.142   <none>        8080/TCP   20m
+service/service-b   ClusterIP   172.30.108.212   <none>        8081/TCP   19m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-a   1/1     1            1           19m
+deployment.apps/service-b   1/1     1            1           19m
+----
+
+. Expose the service `service-a` with a route
++
+[source, bash]
+----
+oc create route edge  --service=service-a
+----
+
+. Get the hostname for the route:
++
+[source, bash]
+----
+oc get route service-a
+NAME        HOST/PORT                            PATH   SERVICES    PORT   TERMINATION   WILDCARD
+service-a   service-a-default.apps-crc.testing          service-a   http   edge          None
+----
+
+. Use curl or open browser with the endpoint URL using the HOST/PORT of the route
++
+[source, bash]
+----
+curl -k https://service-a-default.apps-crc.testing/sayHello/Carlos
+Hello from service-b Carlos!
+----
++
+From the result you can see that `service-a` called `service-b` and replied back.
+
+. In the Jaeger UI select service-a and click **Find Traces**
++
+image::ocp-jaeger-traces.png[]
+
+. Click on one of the traces and expand the spans in the trace
++
+image::ocp-jaeger-spans.png[]
+
+Check one of the labs xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js] or xref:lab-jaeger-java.adoc[Lab Jaeger - Java] for a more in depth lab for Opentracing with Jaeger.
+
+
+
+
+

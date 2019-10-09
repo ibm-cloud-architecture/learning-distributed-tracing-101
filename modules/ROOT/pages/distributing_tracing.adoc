@@ -101,4 +101,4 @@ The `inject` method allows for the `SpanContext` to be passed on to a carrier. F
 image::Extract.png[Trace Propagation]
 
 
-NOTICE: Content extracted from opentracing.io
+NOTE: Content extracted from http://opentracing.io

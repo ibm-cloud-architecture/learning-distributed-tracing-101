@@ -64,7 +64,7 @@ Hello Carlos!
 
 
 
-== Add clien libraries
+== Add client libraries
 
 . Add the tracing client library for the java `service-a`, edit the file `service-a/pom.xml` and add the dependenceies for `opentracing-api`, `opentracing-spring-cloud-starter`, and `jaeger-client`
 The `pom.xml` section should look like the following:

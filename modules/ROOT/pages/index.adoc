@@ -58,4 +58,4 @@ These three components have different requirements and drive the design of the D
 The OpenTracing API provides a standard, vendor neutral framework for instrumentation. This means that if a developer wants to try out a different distributed tracing system, then instead of repeating the whole instrumentation process for the new distributed tracing system, the developer can simply change the configuration of the Tracer.
 
 
-NOTICE: Content extracted from opentracing.io
+NOTE: Content extracted from http://opentracing.io
