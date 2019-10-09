@@ -37,7 +37,7 @@ spec:
           image: csantanapr/service-a-nodejs
           env:
             - name: JAEGER_ENDPOINT
-              value: http://jaeger-collector:14268/api/traces
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
             - name: SERVICE_FORMATTER
               value: service-b
           imagePullPolicy: Always
@@ -82,7 +82,7 @@ spec:
           image: csantanapr/service-b-nodejs
           env:
             - name: JAEGER_ENDPOINT
-              value: http://jaeger-collector:14268/api/traces
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

@@ -119,40 +119,40 @@ Here is an example using Node.js services:
 +
 [source, bash]
 ----
-oc apply -f jaeger-nodejs.yaml
+oc apply -f istio-nodejs.yaml -n default
 ----
 
 . Verify services are deployed and running:
 +
 [source, bash]
 ----
-oc get all -l app=service-a
-oc get all -l app=service-b
-NAME                             READY   STATUS    RESTARTS   AGE
-pod/service-a-785975554d-5cql2   1/1     Running   0          19m
-pod/service-b-674b748766-t7464   1/1     Running   0          19m
+oc get all -l app=service-a -n default
+oc get all -l app=service-b -n default
+NAME                             READY     STATUS    RESTARTS   AGE
+pod/service-a-74cd5c6496-nvllm   2/2       Running   0          6m7s
+pod/service-b-674f96464b-hbmg7   2/2       Running   0          6m44s
 
-NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-service/service-a   ClusterIP   172.30.182.142   <none>        8080/TCP   20m
-service/service-b   ClusterIP   172.30.108.212   <none>        8081/TCP   19m
+NAME                TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/service-a   ClusterIP   172.30.44.43   <none>        8080/TCP   6m7s
+service/service-b   ClusterIP   172.30.115.93   <none>        8081/TCP   6m45s
 
-NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/service-a   1/1     1            1           19m
-deployment.apps/service-b   1/1     1            1           19m
+NAME                        READY     UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-a   1/1       1            1           6m7s
+deployment.apps/service-b   1/1       1            1           6m44s
 ----
 
 . Expose the service `service-a` with a route
 +
 [source, bash]
 ----
-oc create route edge  --service=service-a
+oc create route edge  --service=service-a -n default
 ----
 
 . Get the hostname for the route:
 +
 [source, bash]
 ----
-oc get route service-a
+oc get route service-a -n default
 NAME        HOST/PORT                            PATH   SERVICES    PORT   TERMINATION   WILDCARD
 service-a   service-a-default.apps-crc.testing          service-a   http   edge          None
 ----
