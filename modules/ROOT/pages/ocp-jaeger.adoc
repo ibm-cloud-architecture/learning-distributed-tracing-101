@@ -68,7 +68,9 @@ my-jaeger   my-jaeger-default.apps-crc.testing          my-jaeger-query   <all> 
 == Deploy the Application
 
 . Deploy the services `service-a` and `service-b`
++
 Use the file `jaeger-nodejs.yaml` for Node.js or the file `jaeger-java.yaml` for Java
++
 Here is an example using Node.js services:
 +
 [source, bash]
@@ -126,7 +128,10 @@ From the result you can see that `service-a` called `service-b` and replied back
 image::ocp-jaeger-traces.png[]
 
 . Click on one of the traces and expand the spans in the trace
++
 image::ocp-jaeger-spans.png[]
+
+Check one of the labs xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js] or xref:lab-jaeger-java.adoc[Lab Jaeger - Java] for a more in depth lab for Opentracing with Jaeger.
 
 
 
