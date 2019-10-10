@@ -22,4 +22,4 @@ There are many client libraries for opentracing, jaeger, and zipkin pickig the c
 * Repo for the book Mastering Distributed Tracing by Yuri Shkuro https://github.com/PacktPublishing/Mastering-Distributed-Tracing
 * OpenTracing Tutorial https://github.com/yurishkuro/opentracing-tutorial
 * OpenTracing API Documentation https://doc.esdoc.org/github.com/opentracing/opentracing-javascript/identifiers.html
-
+* Use MicroProfile OpenTracing and distributed tracing with Istio to enhance system observability https://github.com/IBM/opentracing-istio-troubleshooting
