@@ -1,4 +1,4 @@
-= Using Jaeger in Service Mesh / Istio
+= Using Jaeger in Service Mesh(Istio)
 :imagesdir: images
 :toc:
 
@@ -141,7 +141,6 @@ Let's look at the file content on how the services are defined to be deploy into
 [source, yaml]
 ----
 ---
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -219,8 +218,8 @@ spec:
       labels:
         app: service-b
         version: v1
-    annotations:
-      sidecar.istio.io/inject: "true"
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: app
@@ -233,21 +232,62 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
+
 ----
 +
 In the yaml deployment manifest there are few items to point out:
-+
+
 * **Ports**
 ** The port for the container is specified in the service and the container in the deployment, for example `service-a` with port `8080` and `service-b` with port `8081`
 * **Environment Variables**
 ** The variable `JAEGER_ENDPOINT` is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service `http://jaeger-collector.istio-system.svc:14268/api/traces` that is deployed on the namespace `istio-system`. 
 ** The variable `SERVICE_FORMATTER` used by `service-a` to indicate the hostname of `service-b` that will use to format the hello message.
+** The variable `JAEGER_PROPAGATION` is set to `b3` this is necessary because the Envoy proxy does not recognize Jaeger's default on-the-wire representation of the trace context, but it does recognize Zipkin's B3 headers. This configuration instructs the Jaeger tracer to use B3 headers instead of its default ones.
 * Istio has certain https://istio.io/docs/setup/additional-setup/requirements/[specific requirements] the ones we used in our yaml manifest are the following
 ** *Named service ports* 
 *** The service port name value start with `http`
 ** **Deployment with app and version labels**
 *** THe Pod template should have a unique `app` label, and a `version`
-NOTE: We are setting the JAEGER_PROPAGATION=b3 parameter and including the jaeger-zipkin artifact. This is necessary because the Envoy proxy does not recognize Jaeger's default on-the-wire representation of the trace context, but it does recognize Zipkin's B3 headers. This configuration instructs the Jaeger tracer to use B3 headers instead of its default ones.
+
++
+The `pom.xml` for each service contains the dependency for zipkin to handle the B3 headers that Istio Envoy proxy forwards, this way allowing for end to end propagation. The dependencies related to opentracing in the file `pom.xml` for the service looks like this:
+
++
+[source, xml]
+----
+<dependency>
+  <groupId>io.opentracing</groupId>
+  <artifactId>opentracing-api</artifactId>
+  <version>0.33.0</version>
+</dependency>
+
+<dependency>
+  <groupId>io.opentracing.contrib</groupId>
+  <artifactId>opentracing-spring-cloud-starter</artifactId>
+  <version>0.3.7</version>
+</dependency>
+
+<dependency>
+  <groupId>io.jaegertracing</groupId>
+  <artifactId>jaeger-client</artifactId>
+  <version>1.0.0</version>
+</dependency>
+
+<dependency>
+  <groupId>io.jaegertracing</groupId>
+  <artifactId>jaeger-zipkin</artifactId>
+  <version>1.0.0</version>
+</dependency>
+----
+
+. Deploy the Istio Gateway and VirtualService
++
+[source, bash]
+----
+oc apply -f gateway.yaml -n default
+----
+
+
 . Verify services are deployed and running:
 +
 [source, bash]
@@ -267,42 +307,45 @@ deployment.apps/service-a   1/1       1            1           6m7s
 deployment.apps/service-b   1/1       1            1           6m44s
 ----
 
-. Expose the service `service-a` with a route
+
+. Get the hostname for the Istio ingress gateway
 +
 [source, bash]
 ----
-oc create route edge --service=service-a -n default
+oc get route -n istio-system istio-ingressgateway 
+NAME                   HOST/PORT                                            PATH   SERVICES               PORT   TERMINATION   WILDCARD
+istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                 None
 ----
 
-. Get the hostname for the route:
+. Use curl or open a browser with the endpoint URL using the HOST/PORT of the route
 +
 [source, bash]
 ----
-oc get route service-a -n default
-NAME        HOST/PORT                            PATH   SERVICES    PORT   TERMINATION   WILDCARD
-service-a   service-a-default.apps-crc.testing          service-a   http   edge          None
+curl http://istio-ingressgateway-istio-system.apps-crc.testing/sayHello/Carlos
+Hello, from service-b Carlos!
 ----
++
+From the result you can see that `service-a` calls `service-b` and replies back.
 
-. Use curl or open browser with the endpoint URL using the HOST/PORT of the route
+. In the Jaeger UI select `istio-ingressgateway` or `service-a` and click **Find Traces**
 +
-[source, bash]
-----
-curl -k https://service-a-default.apps-crc.testing/sayHello/Carlos
-Hello from service-b Carlos!
-----
+image::istio-jaeger-traces.png[]
 +
-From the result you can see that `service-a` called `service-b` and replied back.
-
-. In the Jaeger UI select service-a and click **Find Traces**
-+
-image::ocp-jaeger-traces.png[]
+You can see 7 Spans in a single trace starting from the `istio-ingressgateway` ending in `service-b.default`
 
 . Click on one of the traces and expand the spans in the trace
 +
-image::ocp-jaeger-spans.png[]
-
+image::istio-jaeger-spans.png[]
++
 Check one of the labs xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js] or xref:lab-jaeger-java.adoc[Lab Jaeger - Java] for a more in depth lab for Opentracing with Jaeger.
 
+. In the Kiali UI select Graph to see a topology view of the services, you can enable traffic animation under Display to see the flow of http requests
++
+image::istio-kiali.png[]
+
+. In the Grafana UI select the Dashboard *Istio Workload Dashboard* or *Istio Service Dashboard* to see monitoring and metrics data for your services
++
+image::istio-grafana.png[]
 
 
 

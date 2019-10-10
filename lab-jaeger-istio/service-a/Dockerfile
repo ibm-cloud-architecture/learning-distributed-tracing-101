@@ -26,5 +26,5 @@ RUN apt-get update \
 ENV JAR_NAME=solution-servicea-0.0.1-SNAPSHOT.jar
 COPY --from=builder target/$JAR_NAME ./app.jar
 
-ENV JAVA_OPTS="-DJAEGER_PROPAGATION=b3 -DJAEGER_SERVICE_NAME=service-a"
+ENV JAVA_OPTS=""
 ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar ./app.jar" ]
