@@ -38,6 +38,8 @@ spec:
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
             - name: SERVICE_FORMATTER
               value: service-b
           imagePullPolicy: Always
@@ -74,8 +76,8 @@ spec:
       labels:
         app: service-b
         version: v1
-    annotations:
-      sidecar.istio.io/inject: "true"
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
         - name: app
@@ -83,6 +85,8 @@ spec:
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

@@ -28,13 +28,28 @@ cd lab-jaeger-istio
 
 == Installing Service Mesh (Istio) Operator
 
-As part of the Service Mesh Jaeger is also installed, in addition Grafana, and Kiali are also configured and installed.
+As part of the Service Mesh installation, the Jaeger operator is also installed, in addition Prometheus, Grafana, and Kiali are also configured and installed.
 
-* OpenShift 3
-** Install from OperatorHub.io https://operatorhub.io/operator/jaeger
-* OpenShift 4, You can use the CodeReady Containers for local development https://cloud.redhat.com/openshift/install/crc/installer-provisioned
+* OpenShift 4, You can use the CodeReady Containers for local development cluster https://cloud.redhat.com/openshift/install/crc/installer-provisioned
 ** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html[Preparing to install Red Hat OpenShift Service Mesh]
 ** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html[Installing Red Hat OpenShift Service Mesh]
+
+[IMPORTANT]
+Reducing resources when using local dev crc
+====
+When creating the ServiceMeshControlPlane edit the yaml for the pilot to specified a lower memory request, the default is 2Gi too high for the crc VM, the pilot section should look this:
+[source, yaml]
+----
+    pilot:
+      autoscaleEnabled: false
+      traceSampling: 100
+      resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+----
+
+====
 
 == Verify Service Mesh installation
 
@@ -91,7 +106,7 @@ NAME      MEMBERS
 default   [default bookinfo]
 ----
 
-. Verify routes in the namespace `istio-system`
+. Verify routes in to the different UI dashboards for Jaeger, Grafana, and Kiali
 +
 [source, bash]
 ----
@@ -107,7 +122,7 @@ prometheus             prometheus-istio-system.apps-crc.testing                 
 * Open the different UIs in the browser using the route's values for HOST/PORT
 ** Jaeger: https://jaeger-istio-system.apps-crc.testing
 ** Grafana: https://grafana-istio-system.apps-crc.testing
-** Kialu: https://kiali-istio-system.apps-crc.testing
+** Kiali: https://kiali-istio-system.apps-crc.testing
 
 == Deploy the Application
 
@@ -119,9 +134,120 @@ Here is an example using Node.js services:
 +
 [source, bash]
 ----
-oc apply -f istio-nodejs.yaml -n default
+oc apply -f istio-java.yaml -n default
 ----
-
+Let's look at the file content on how the services are defined to be deploy into OpenShift cluster:
++
+[source, yaml]
+----
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-a-java
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+            - name: SERVICE_FORMATTER
+              value: service-b
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+spec:
+  ports:
+    - port: 8081
+      name: http
+  selector:
+    app: service-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v1
+    annotations:
+      sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-b-java
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+----
++
+In the yaml deployment manifest there are few items to point out:
++
+* **Ports**
+** The port for the container is specified in the service and the container in the deployment, for example `service-a` with port `8080` and `service-b` with port `8081`
+* **Environment Variables**
+** The variable `JAEGER_ENDPOINT` is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service `http://jaeger-collector.istio-system.svc:14268/api/traces` that is deployed on the namespace `istio-system`. 
+** The variable `SERVICE_FORMATTER` used by `service-a` to indicate the hostname of `service-b` that will use to format the hello message.
+* Istio has certain https://istio.io/docs/setup/additional-setup/requirements/[specific requirements] the ones we used in our yaml manifest are the following
+** *Named service ports* 
+*** The service port name value start with `http`
+** **Deployment with app and version labels**
+*** THe Pod template should have a unique `app` label, and a `version`
+NOTE: We are setting the JAEGER_PROPAGATION=b3 parameter and including the jaeger-zipkin artifact. This is necessary because the Envoy proxy does not recognize Jaeger's default on-the-wire representation of the trace context, but it does recognize Zipkin's B3 headers. This configuration instructs the Jaeger tracer to use B3 headers instead of its default ones.
 . Verify services are deployed and running:
 +
 [source, bash]
@@ -145,7 +271,7 @@ deployment.apps/service-b   1/1       1            1           6m44s
 +
 [source, bash]
 ----
-oc create route edge  --service=service-a -n default
+oc create route edge --service=service-a -n default
 ----
 
 . Get the hostname for the route:

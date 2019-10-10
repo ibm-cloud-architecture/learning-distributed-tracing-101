@@ -2,7 +2,7 @@
 * xref:distributing_tracing.adoc[Distributing Tracing]
 * xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js]
 * xref:lab-jaeger-java.adoc[Lab Jaeger - Java]
-* xref:ocp-jaeger.adoc[Lab Jaeger - OpenShift/Kubernetes]
-* xref:ocp-istio.adoc[Lab Jaeger - Service Mesh/Istio]
+* xref:ocp-jaeger.adoc[Lab Jaeger - OpenShift(k8s)]
+* xref:ocp-istio.adoc[Lab Jaeger - Service Mesh(Istio)]
 * xref:references.adoc[References]
 
