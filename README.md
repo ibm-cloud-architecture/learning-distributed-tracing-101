@@ -23,7 +23,7 @@ Learn how to:
 - Code Editor - I recommend [VSCode](https://code.visualstudio.com/)
 
 ## Learning Journey
-Access the learning modules https://csantanapr.github.io/learning-distrubing-tracing-101 
+Access the learning modules https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101 
 
 This learning journey will get you started into Distributing Tracing, covering many basic concepts with hands-on labs. The journey takes you through frameworks, client libraries, and [Jaeger](https://www.jaegertracing.io/).
 

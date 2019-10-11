@@ -3,12 +3,12 @@ runtime:
 
 site:
   title: Learning Distributing Tracing 101
-  url: https://csantanapr.github.io/learning-distrubing-tracing-101/
+  url: https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/
   start_page: docs::index.adoc
 
 content:
   sources:
-    - url: https://github.com/csantanapr/learning-distrubing-tracing-101.git
+    - url: https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git
       branches: "master"
 ui:
   bundle:

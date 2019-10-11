@@ -9,7 +9,7 @@
 +
 [source, bash]
 ----
-git clone https://github.com/csantanapr/learning-distrubing-tracing-101.git
+git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git
 ----
 
 . Change to the lab directory
