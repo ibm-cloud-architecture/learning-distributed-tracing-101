@@ -1,6 +1,6 @@
 {
     "name": "learning-distributing-tracing-101",
-    "description": "Learning Distributing 101 Documentation Site",
+    "description": "Learning Distributed 101 Documentation Site",
     "dependencies": {
         "@antora/cli": "2.0.0",
         "@antora/site-generator-default": "2.0.0",
