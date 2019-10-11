@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Using Jaeger in OpenShift/Kubernetes :: Learning Distributing Tracing 101</title>
+    <link rel="canonical" href="https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/docs/ocp-jaeger.html">
+    <meta name="generator" content="Antora 2.0.1">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header" role="banner">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <p>Learning Distributing Tracing 101</p>
+      </div>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+    </div>
+  </nav>
+</header><div class="body">
+<div class="nav-container" data-component="docs" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">Learning Distributing Tracing 101</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">Overview</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="distributing_tracing.html">Distributing Tracing</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-nodejs.html">Lab 1 - Node.js</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-java.html">Lab 2 - Java</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="ocp-jaeger.html">Lab 3 - OpenShift(k8s)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-istio.html">Lab 4 - Service Mesh(Istio)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="references.html">References</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Learning Distributing Tracing 101</span>
+    <span class="version">master</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Learning Distributing Tracing 101</span>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">master</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main>
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Learning Distributing Tracing 101</a></li>
+    <li><a href="ocp-jaeger.html">Lab 3 - OpenShift(k8s)</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/ocp-jaeger.adoc">Edit this Page</a></div>
+</div>
+<article class="doc">
+<h1 class="page">Using Jaeger in OpenShift/Kubernetes</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_understanding_jaeger">Understanding Jaeger</a></li>
+<li><a href="#_installing_the_jaeger_operator">Installing the Jaeger operator</a></li>
+<li><a href="#_creating_an_instance_of_jaeger">Creating an instance of Jaeger</a></li>
+<li><a href="#_deploy_the_application">Deploy the Application</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<h3 id="_general_instructions" class="discrete">General Instructions</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Clone the git repository</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Change to the lab directory</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-ocp</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_understanding_jaeger"><a class="anchor" href="#_understanding_jaeger"></a>Understanding Jaeger</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Read the OpenShift Documentation <a href="https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_arch/ossm-jaeger.html">Understanding Jaeger</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installing_the_jaeger_operator"><a class="anchor" href="#_installing_the_jaeger_operator"></a>Installing the Jaeger operator</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>OpenShift 3</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Install from OperatorHub.io <a href="https://operatorhub.io/operator/jaeger" class="bare">https://operatorhub.io/operator/jaeger</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>OpenShift 4, You can use the CodeReady Containers for local development cluster <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned" class="bare">https://cloud.redhat.com/openshift/install/crc/installer-provisioned</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html#ossm-operator-install-jaeger_installing-ossm">Installing the Jaeger Operator on OpenShift 4</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_an_instance_of_jaeger"><a class="anchor" href="#_creating_an_instance_of_jaeger"></a>Creating an instance of Jaeger</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Create a Custom Resource for Jaeger</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to the OpenShift Container Platform web console.</p>
+</li>
+<li>
+<p>Select project <code>openshift-operators</code></p>
+</li>
+<li>
+<p>Navigate to <strong>Operators → Installed Operators</strong></p>
+</li>
+<li>
+<p>Click the <strong>Jaeger Operator</strong> provided by Red Hat</p>
+</li>
+<li>
+<p>Under <strong>Provided APIs</strong></p>
+</li>
+<li>
+<p>Click <strong>Create Instance</strong></p>
+</li>
+<li>
+<p>Edit namespace to your project for example <code>default</code></p>
+</li>
+<li>
+<p>Review yaml and Click Create</p>
+</li>
+<li>
+<p>Verify the Jaeger services in the <code>default</code> namespace</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get services -n default | grep jaeger
+my-jaeger-agent                ClusterIP      None            &lt;none&gt;                                 5775/TCP,5778/TCP,6831/TCP,6832/TCP      13m
+my-jaeger-collector            ClusterIP      172.30.31.3     &lt;none&gt;                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
+my-jaeger-collector-headless   ClusterIP      None            &lt;none&gt;                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
+my-jaeger-query                ClusterIP      172.30.244.60   &lt;none&gt;                                 443/TCP                                  13m</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Take a look at the <code>my-jaeger-collector</code> on port <code>14268/TCP</code> this is the service to be used by our services to send the Jaeger traces containing the spans, you will configure this in the kubernetes deployment yaml manifest.
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Find the route to the Jaeger UI</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route my-jaeger
+NAME        HOST/PORT                            PATH   SERVICES          PORT    TERMINATION   WILDCARD
+my-jaeger   my-jaeger-default.apps-crc.testing          my-jaeger-query   &lt;all&gt;   reencrypt     None</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI in the browser using value HOST/PORT <a href="https://my-jaeger-default.apps-crc.testing" class="bare">https://my-jaeger-default.apps-crc.testing</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deploy_the_application"><a class="anchor" href="#_deploy_the_application"></a>Deploy the Application</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy the services <code>service-a</code> and <code>service-b</code></p>
+<div class="paragraph">
+<p>Use the file <code>jaeger-nodejs.yaml</code> for Node.js or the file <code>jaeger-java.yaml</code> for Java</p>
+</div>
+<div class="paragraph">
+<p>Here is an example using Node.js services and deployments:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f istio-nodejs.yaml -n default</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s look at the file content on how the services are defined to be deploy into OpenShift cluster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v1
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-a-nodejs
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://my-jaeger-collector:14268/api/traces
+            - name: SERVICE_FORMATTER
+              value: service-b
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+spec:
+  ports:
+    - port: 8081
+      name: http
+  selector:
+    app: service-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v1
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-b-nodejs
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://my-jaeger-collector:14268/api/traces
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the yaml deployment manifest there are few items to point out:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ports</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The port for the container is specified in the service and the container in the deployment, for example <code>service-a</code> with port <code>8080</code> and <code>service-b</code> with port <code>8081</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Environment Variables</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The variable <code>JAEGER_ENDPOINT</code> is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service <code><a href="http://my-jaeger-collector:14268/api/traces" class="bare">http://my-jaeger-collector:14268/api/traces</a></code> that is deployed on the same namespace <code>default</code> as the services. You could also opt for using a side card and use UDP to send traces to an agent side card and this will foward the traces to the jaeger collector for more info see the jaeger operator documentation on how to enable this with an annotation.</p>
+</li>
+<li>
+<p>The variable <code>SERVICE_FORMATTER</code> used by <code>service-a</code> to indicate the hostname of <code>service-b</code> that will use to format the hello message.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify services are deployed and running:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get all -l app=service-a -n default
+oc get all -l app=service-b -n default
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/service-a-785975554d-5cql2   1/1     Running   0          19m
+pod/service-b-674b748766-t7464   1/1     Running   0          19m
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/service-a   ClusterIP   172.30.182.142   &lt;none&gt;        8080/TCP   20m
+service/service-b   ClusterIP   172.30.108.212   &lt;none&gt;        8081/TCP   19m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-a   1/1     1            1           19m
+deployment.apps/service-b   1/1     1            1           19m</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Expose the service <code>service-a</code> with a route</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create route edge  --service=service-a -n default</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Get the hostname for the route:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route service-a -n default
+NAME        HOST/PORT                            PATH   SERVICES    PORT   TERMINATION   WILDCARD
+service-a   service-a-default.apps-crc.testing          service-a   http   edge          None</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Use curl or open browser with the endpoint URL using the HOST/PORT of the route</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl -k https://service-a-default.apps-crc.testing/sayHello/Carlos
+Hello from service-b Carlos!</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>From the result you can see that <code>service-a</code> called <code>service-b</code> and replied back.</p>
+</div>
+</li>
+<li>
+<p>In the Jaeger UI select service-a and click <strong>Find Traces</strong></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/ocp-jaeger-traces.png" alt="ocp jaeger traces">
+</div>
+</div>
+</li>
+<li>
+<p>Click on one of the traces and expand the spans in the trace</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/ocp-jaeger-spans.png" alt="ocp jaeger spans">
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Check one of the labs <a href="lab-jaeger-nodejs.html" class="page">Lab Jaeger - Node.js</a> or <a href="lab-jaeger-java.html" class="page">Lab Jaeger - Java</a> for a more in depth lab for Opentracing with Jaeger.</p>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

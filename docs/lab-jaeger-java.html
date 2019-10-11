@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Distributing Tracing Lab - Java :: Learning Distributing Tracing 101</title>
+    <link rel="canonical" href="https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/docs/lab-jaeger-java.html">
+    <meta name="generator" content="Antora 2.0.1">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header" role="banner">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <p>Learning Distributing Tracing 101</p>
+      </div>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+    </div>
+  </nav>
+</header><div class="body">
+<div class="nav-container" data-component="docs" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">Learning Distributing Tracing 101</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">Overview</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="distributing_tracing.html">Distributing Tracing</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-nodejs.html">Lab 1 - Node.js</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-java.html">Lab 2 - Java</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-jaeger.html">Lab 3 - OpenShift(k8s)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-istio.html">Lab 4 - Service Mesh(Istio)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="references.html">References</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Learning Distributing Tracing 101</span>
+    <span class="version">master</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Learning Distributing Tracing 101</span>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">master</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main>
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Learning Distributing Tracing 101</a></li>
+    <li><a href="lab-jaeger-java.html">Lab 2 - Java</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/lab-jaeger-java.adoc">Edit this Page</a></div>
+</div>
+<article class="doc">
+<h1 class="page">Distributing Tracing Lab - Java</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_test_your_environment">Test your environment</a></li>
+<li><a href="#_add_client_libraries">Add client libraries</a></li>
+<li><a href="#_tracing_every_http_request">Tracing every http request</a></li>
+<li><a href="#_finding_slow_http_requests">Finding slow http requests</a></li>
+<li><a href="#_tracing_an_http_handler">Tracing an http handler</a></li>
+<li><a href="#_tracing_a_function">Tracing a function</a></li>
+<li><a href="#_distributing_tracing">Distributing Tracing</a></li>
+<li><a href="#_baggage_propagation">Baggage propagation</a></li>
+<li><a href="#_searching_traces">Searching Traces</a></li>
+<li><a href="#_dependency_graph">Dependency graph</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<h3 id="_prerequisites" class="discrete">Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Connection to the internet (docker.io, github.com, maven repo, npm registry)</p>
+</li>
+<li>
+<p><a href="https://www.docker.com/products/docker-desktop">Docker for Desktop</a></p>
+</li>
+<li>
+<p><a href="https://docs.docker.com/compose/install">docker-compose</a></p>
+</li>
+<li>
+<p>Code Editor</p>
+<div class="ulist">
+<ul>
+<li>
+<p>I recommend <a href="https://code.visualstudio.com">VSCode</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<h3 id="_general_instructions" class="discrete">General Instructions</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Clone the git repository</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Change to the lab directory</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-java/solution</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The solution to the lab is located in the directory <code>lab-jaeger-java/solution</code></p>
+</div>
+<div class="paragraph">
+<p>docker-compose is already configured to run Jaeger</p>
+</div>
+<div class="paragraph">
+<p>In case that stopping docker-compose doesn&#8217;t work with <code>Ctrl-C</code> you can stop using <code>docker-compose stop</code></p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test_your_environment"><a class="anchor" href="#_test_your_environment"></a>Test your environment</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Change directory to the lab:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-java</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Test the service without tracing enable</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Try the service</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_add_client_libraries"><a class="anchor" href="#_add_client_libraries"></a>Add client libraries</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add the tracing client library for the java <code>service-a</code>, edit the file <code>service-a/pom.xml</code> and add the dependenceies for <code>opentracing-api</code>, <code>opentracing-spring-cloud-starter</code>, and <code>jaeger-client</code>
+The <code>pom.xml</code> section should look like the following:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;io.opentracing&lt;/groupId&gt;
+    &lt;artifactId&gt;opentracing-api&lt;/artifactId&gt;
+    &lt;version&gt;0.31.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;io.opentracing.contrib&lt;/groupId&gt;
+    &lt;artifactId&gt;opentracing-spring-cloud-starter&lt;/artifactId&gt;
+    &lt;version&gt;0.1.13&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jaegertracing&lt;/groupId&gt;
+    &lt;artifactId&gt;jaeger-client&lt;/artifactId&gt;
+    &lt;version&gt;0.31.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tracing_every_http_request"><a class="anchor" href="#_tracing_every_http_request"></a>Tracing every http request</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add A Bean to initialized the Tracer in the main Class in the file <code>src/main/java/com/example/servicea/DemoApplication.java</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public io.opentracing.Tracer initTracer() {
+  SamplerConfiguration samplerConfig = new SamplerConfiguration().withType("const").withParam(1);
+  ReporterConfiguration reporterConfig = ReporterConfiguration.fromEnv().withLogSpans(true);
+  return Configuration.fromEnv("service-a").withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add the imports for jaegertracing in the file <code>src/main/java/com/example/servicea/DemoApplication.java</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.jaegertracing.Configuration;
+import io.jaegertracing.Configuration.ReporterConfiguration;
+import io.jaegertracing.Configuration.SamplerConfiguration;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Call the same API endpoint, but now is instrumented with tracing</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-find-trace.png" alt="java service a find trace">
+</div>
+</div>
+</li>
+<li>
+<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the http request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section have two logs one with <code>preHandle</code> and the final log <code>afterCompletion</code> this gives you how much time the request took to be processed by your service business logic. In this example it took <code>8ms</code>.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/nodejs-service-a-trace-details.jpg" alt="nodejs service a trace details">
+</div>
+</div>
+</li>
+<li>
+<p>Force an error in the service by calling the <code>/error</code> endpoint.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/error -I
+HTTP/1.1 500</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Click <code>Find Traces</code> now it should show a trace with the error endpoint.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-error.png" alt="java service a error">
+</div>
+</div>
+</li>
+<li>
+<p>Click on the trace with the <code>/error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as the <code>http.status_code</code> se to <code>500</code>.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-error-details.png" alt="java service a error details">
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow http requests</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the <code>service-a</code> we have the API endpoint <code>/sayHello</code>, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow 100ms.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Stop docker-compose with <code>Ctrl+C</code> and start it again.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Run  the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">i=0;
+while [ $i -lt 15 ];
+do curl http://localhost:8080/sayHello/Carlos -I -s | head -n 1; i=$((i+1));
+done;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-slow.png" alt="java service a slow">
+</div>
+</div>
+<div class="paragraph">
+<p>In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked <code>Find Traces</code>.
+Some traces are taking approximately 100ms and others are taking approximately 2ms.
+You can see the pattern that only every 3rd request the response is slow.
+When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by <code>Longest First</code>.</p>
+</div>
+</li>
+<li>
+<p>Select the trace that took the longest time 103ms, expand all the information for the single span operation <code>/sayHello</code> including tags and logs.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-slow-details.png" alt="java service a slow details">
+</div>
+</div>
+</li>
+<li>
+<p>The handler has a sleep step in the method <code>sayHello</code> that delays the response every 3rd request. Open the file <code>src/main/java/com/example/servicea/HelloController.java</code> and locate the culprit code.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// simulate a slow request every 3 requests
+try {
+    if (counter++ % 3 == 0) {
+        Thread.sleep(100);
+    }
+} catch (InterruptedException e) {
+    // TODO Auto-generated catch block
+    e.printStackTrace();
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Remove the <code>try/catch</code> block and save the file <code>HelloController.java</code>.</p>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Run again the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">i=0;
+while [ $i -lt 15 ];
+do curl http://localhost:8080/sayHello/Carlos -I -s | head -n 1; i=$((i+1));
+done;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-fast.png" alt="java service a fast">
+</div>
+</div>
+<div class="paragraph">
+<p>You can see now that all http requests are fast and the problem is fixed</p>
+</div>
+<div class="paragraph">
+<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tracing_an_http_handler"><a class="anchor" href="#_tracing_an_http_handler"></a>Tracing an http handler</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous example, we were able to identify the endpoint <code>/sayHello</code> as one of interest in our service. Let&#8217;s see how can we add tracing instrumentation to the function that is handling this endpoint.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Add the following imports at the top of the file <code>HelloController.java</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>In the class <code>HelloController</code> add the following Autowire to have access to the global tracer</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Autowired
+    private Tracer tracer;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Locate the method <code>sayHello</code> and and wrap the code in a try with a scope, this will create a new child span.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        String response = formatGreeting(name);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Get a reference to the new child span <code>say-hello-handler</code> using the method <code>scope.span()</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        String response = formatGreeting(name);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The opentracing API supports the method <code>log</code> you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map&lt;String, String&gt; fields = new LinkedHashMap&lt;&gt;();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        // you can also log a string instead of a map, key=event value=&lt;stringvalue&gt;
+        // span.log("this is a log message for name " + name);
+        String response = formatGreeting(name);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The opentracing API supports the method <code>setTag</code> you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using <code>true</code> in <code>.startActive(true)</code> there is no need to call explicit <code>span.finish()</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map&lt;String, String&gt; fields = new LinkedHashMap&lt;&gt;();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        // you can also log a string instead of a map, key=event value=&lt;stringvalue&gt;
+        // span.log("this is a log message for name " + name);
+        String response = formatGreeting(name);
+        span.setTag("response", response);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Call the API endpoint.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-2-spans.png" alt="java service a 2 spans">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice in the result items table, for the trace item that the trace indicates that there are a total of two spans <code>2 Spans</code> and that service-a contains two spans <code>service-a (2)</code></p>
+</div>
+</li>
+<li>
+<p>Click the trace, expand the spans <code>say-hello</code>, and then expand the <code>Tags</code> and <code>Logs</code> sections.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-span-details.png" alt="java service a span details">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice in the Tags section the tag is located with key <code>name</code> and the string value <code>Hello Carlos!</code>.
+Notice in the Logs section the log event with the name <code>name</code> and the message <code>this is a log message for name Carlos</code></p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tracing_a_function"><a class="anchor" href="#_tracing_a_function"></a>Tracing a function</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <code>sayHello</code> handler calls the function <code>formatGreeting</code> to process the input <code>name</code>. In the method <code>formatGreeting</code> create a new span using <code>tracer.buildSpan</code> and name the span <code>format-greeting</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">private String formatGreeting(String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message locally for name " + name);
+        String response = "Hello " + name + "!";
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Call the API endpoint.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-3-spans.png" alt="java service a 3 spans">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the trace now contains three spans.</p>
+</div>
+</li>
+<li>
+<p>Click the trace, expand the spans <code>say-hello</code> and <code>format-greeting</code>, and then expand the <code>Logs</code> sections.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-a-span-formatter.png" alt="java service a span formatter">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice the cascading effect between the three spans, the span <code>format-greeting</code> contains the message <code>formatting message locally for name Carlos</code> that we instrumented.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_distributing_tracing"><a class="anchor" href="#_distributing_tracing"></a>Distributing Tracing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.</p>
+</div>
+<div class="paragraph">
+<p>In the previous example, we instrumented a single service <code>service-a</code>, and created span when calling a local function to format the greeting message.</p>
+</div>
+<div class="paragraph">
+<p>For the following example, we are going to use a remote service <code>service-b</code> to format the message, and returning the formatted greeting message to the http client.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the file <code>HelloController.java</code> locate the handler function <code>sayHello</code> and replace the function call <code>formatGreeting(name)</code> with <code>formatGreetingRemote(name)</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map&lt;String, String&gt; fields = new LinkedHashMap&lt;&gt;();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        String response = formatGreetingRemote(name);
+        span.setTag("response", response);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>In the method <code>formatGreetingRemote</code> the http requestis automatically instrumented, and the tracing headers inserted  when calling the remote service <code>service-b</code> endpoint <code>/formatGreeting</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">private String formatGreetingRemote(String name) {
+    String serviceName = System.getenv("SERVICE_FORMATTER");
+    if (serviceName == null) {
+        serviceName = "localhost";
+    }
+    String urlPath = "http://" + serviceName + ":8081/formatGreeting";
+    URI uri = UriComponentsBuilder //
+            .fromHttpUrl(urlPath) //
+            .queryParam("name", name).build(Collections.emptyMap());
+    ResponseEntity&lt;String&gt; response = restTemplate.getForEntity(uri, String.class);
+    return response.getBody();
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The service <code>service-b</code> is already instrumented to trace every http request using the same procedure <a href="#tracing-every-http-request">Trace every http request</a> that we did for service <code>service-a</code>.</p>
+</li>
+<li>
+<p>Import at the top of the file <code>src/main/java/com/example/serviceb/FormatController.java</code> the <code>opentracing</code> libraries.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.Tracer;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>In the class <code>FormatController</code> add the following Autowire to have access to the global tracer</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Autowired
+    private Tracer tracer;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Located the http handler function <code>formatGreeting</code> in the file <code>FormatController.java</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
+    String response = "Hello, from service-b " + name + "!";
+    return response;
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a new child span using the parent span located in the <code>req</code> object as context.
+This will allow the trace to have an additional child span. Use the function <code>tracer.startSpan</code> and name the span <code>format-greeting</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        String response = "Hello, from service-b " + name + "!";
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Add a log event to the new span using the method <code>span.log</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message remotely for name " + name);
+        String response = "Hello, from service-b " + name + "!";
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Call the API endpoint.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-services-b-trace.png" alt="java services b trace">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the trace contains a total of four spans <code>5 Spans</code> two for <code>service-a(3)</code> and two for <code>service-b(2)</code></p>
+</div>
+</li>
+<li>
+<p>Click the trace to drill down to get more details.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-services-b-spans.png" alt="java services b spans">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice in the top section, the summary which includes the <code>Trace Start</code>, <code>Duration: 16ms</code>, <code>Services: 2</code>, <code>Depth: 5</code> and <code>Total Spans: 5</code>.</p>
+</div>
+<div class="paragraph">
+<p>Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in <code>service-b</code> was 5ms, meaning that for this single http request <code>service-a</code> spent 11ms and <code>service-b</code> spent 5ms.</p>
+</div>
+</li>
+<li>
+<p>Expand the <code>Logs</code> sections for both spans <code>say-hello</code> from <code>service-a</code> and  <code>format-greeting</code> from <code>service-b</code>.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-services-b-logs.png" alt="java services b logs">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice on the right side, each span has a summary each with the associated <code>Service</code>, <code>Duration</code>, and <code>Start Time</code>. The <code>Start Time</code> of a span marks the end time from the previous span.</p>
+</div>
+<div class="paragraph">
+<p>Notice the time for the first log message <code>this is a log message for name Carlos</code> in <code>service-a</code> is of 1ms, this means this log event happened 1ms after the trace started.</p>
+</div>
+<div class="paragraph">
+<p>Notice the time for the second log message <code>formatting message remotely for name Carlos</code> in <code>service-b</code> is of 4.98ms, this means this log event happened 4.98ms after the trace started in <code>service-a</code>.</p>
+</div>
+<div class="paragraph">
+<p>Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_baggage_propagation"><a class="anchor" href="#_baggage_propagation"></a>Baggage propagation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Imagine a scenario where you want to redirect all Safari users to a specific version of a service using theUser-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.</p>
+</div>
+<div class="paragraph">
+<p>Baggage items are key:value string pairs that apply to the given Span, its SpanContext, and all Spans which directly or transitively reference the local Span. That is, baggage items propagate in-band along with the trace itself.</p>
+</div>
+<div class="paragraph">
+<p>Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.</p>
+</div>
+<div class="paragraph">
+<p>Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Locate the http handler <code>sayHello</code> in the file <code>HelloControlle.java</code>. Use the method <code>span.setBaggageItem('my-baggage', name)</code> before the method call <code>formatGreetingRemote(name)</code> to set the baggage with key <code>my-baggage</code> to the value of the <code>name</code> parameter.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
+    try (Scope scope = tracer.buildSpan("say-hello-handler").startActive(true)) {
+        Span span = scope.span();
+        Map&lt;String, String&gt; fields = new LinkedHashMap&lt;&gt;();
+        fields.put("event", name);
+        fields.put("message", "this is a log message for name " + name);
+        span.log(fields);
+        span.setBaggageItem("my-baggage", name);
+        String response = formatGreetingRemote(name);
+        span.setTag("response", response);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Locate the http handler <code>formatGreeting</code> in the file <code>FormatController.java</code>. Use the method <code>span.getBaggageItem('my-baggage')</code> to get the value of the name parameter at <code>service-a</code>. For convenience log the value using <code>span.log</code> to see the value in the Jaeger UI.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
+    try (Scope scope = tracer.buildSpan("format-greeting").startActive(true)) {
+        Span span = scope.span();
+        span.log("formatting message remotely for name " + name);
+        String response = "Hello, from service-b " + name + "!";
+        String myBaggage = span.getBaggageItem("my-baggage");
+        span.log("this is baggage " + myBaggage);
+        return response;
+    }
+}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Build and run the service. If docker-compose is already running in the terminal enter <code>Ctrl+C</code> to exit and stop the containers.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker-compose build
+docker-compose up</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Call the same API endpoint, but now is instrumented with tracing</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
+Hello Carlos!</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the Jaeger UI using the web browser</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code>. Expand the section <code>Logs</code> for the spans <code>say-hello</code> and <code>format-greeting</code></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/java-service-b-baggage.png" alt="java service b baggage">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the baggage is set in the <code>service-a</code> with the value <code>Carlos</code> this baggage is propagated to all spans local or remote. In the <code>server-b</code> span you can see the baggage value <code>Carlos</code> is propagated.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_searching_traces"><a class="anchor" href="#_searching_traces"></a>Searching Traces</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you have a specific trace id you can search for it by putting the trace id on the top left search box.</p>
+</div>
+<div class="paragraph">
+<p>You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>To search for traces using http method <code>GET</code> and status code <code>200</code>, enter <code>http.status_code=200  http.method=GET</code> on the <code>Tags</code> field in the search form, and then click <code>Find Traces</code>.</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/jaeger-ui-search.png" alt="jaeger ui search">
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dependency_graph"><a class="anchor" href="#_dependency_graph"></a>Dependency graph</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Jaeger UI has a view for service dependencies, it shows a visual Directed acyclic graph (DAG).</p>
+</div>
+<div class="paragraph">
+<p>Click the tab <code>Dependencies</code>, then click the <code>DAG</code> tab.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/jaeger-ui-dependencies-dag-1.jpg" alt="jaeger ui dependencies dag 1">
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the graph shows the direction with an arrow flowing from <code>service-a</code> to <code>service-b</code>. It also shows the number of traces between the services.</p>
+</div>
+<div class="paragraph">
+<p>This is is a simple example and there is not much value for a small set of services, but when a large number of services each with multiple endpoints then the graph becomes more interesting like the following example:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/jaeger-ui-dependencies-dag-2.jpg" alt="jaeger ui dependencies dag 2">
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

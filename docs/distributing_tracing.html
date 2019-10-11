@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Overview :: Learning Distributing Tracing 101</title>
+    <link rel="canonical" href="https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/docs/distributing_tracing.html">
+    <meta name="generator" content="Antora 2.0.1">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header" role="banner">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <p>Learning Distributing Tracing 101</p>
+      </div>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+    </div>
+  </nav>
+</header><div class="body">
+<div class="nav-container" data-component="docs" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">Learning Distributing Tracing 101</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">Overview</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="distributing_tracing.html">Distributing Tracing</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-nodejs.html">Lab 1 - Node.js</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-java.html">Lab 2 - Java</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-jaeger.html">Lab 3 - OpenShift(k8s)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-istio.html">Lab 4 - Service Mesh(Istio)</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="references.html">References</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Learning Distributing Tracing 101</span>
+    <span class="version">master</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Learning Distributing Tracing 101</span>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">master</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main>
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Learning Distributing Tracing 101</a></li>
+    <li><a href="distributing_tracing.html">Distributing Tracing</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/distributing_tracing.adoc">Edit this Page</a></div>
+</div>
+<article class="doc">
+<h1 class="page">Overview</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_what_is_distributed_tracing">What is Distributed Tracing?</a></li>
+<li><a href="#_who_uses_distributed_tracing">Who Uses Distributed Tracing?</a></li>
+<li><a href="#_what_is_opentracing">What is OpenTracing?</a></li>
+<li><a href="#_what_is_a_span">What is a Span?</a>
+<ul class="sectlevel2">
+<li><a href="#_tags">Tags</a></li>
+<li><a href="#_logs">Logs</a></li>
+<li><a href="#_baggage_items">Baggage Items</a></li>
+</ul>
+</li>
+<li><a href="#_tracer">Tracer</a>
+<ul class="sectlevel2">
+<li><a href="#_starting_a_new_trace">Starting a new Trace</a></li>
+<li><a href="#_accessing_the_active_span">Accessing the Active Span</a></li>
+<li><a href="#_propagating_a_trace_with_injectextract">Propagating a Trace with Inject/Extract</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_what_is_distributed_tracing"><a class="anchor" href="#_what_is_distributed_tracing"></a>What is Distributed Tracing?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Distributed tracing, also called distributed request tracing, is a method used to profile and monitor applications, especially those built using a microservices architecture. Distributed tracing helps pinpoint where failures occur and what causes poor performance.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_who_uses_distributed_tracing"><a class="anchor" href="#_who_uses_distributed_tracing"></a>Who Uses Distributed Tracing?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>IT and DevOps teams can use distributed tracing to monitor applications.  Distributed tracing is particularly well-suited to debugging and monitoring modern distributed software architectures, such as microservices.</p>
+</div>
+<div class="paragraph">
+<p>Developers can use distributed tracing to help debug and optimize their code.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_is_opentracing"><a class="anchor" href="#_what_is_opentracing"></a>What is OpenTracing?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is probably easier to start with what OpenTracing is NOT.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>OpenTracing is not a download or a program.  Distributed tracing requires that software developers add instrumentation to the code of an application, or to the frameworks used in the application.</p>
+</li>
+<li>
+<p>OpenTracing is not a standard. The Cloud Native Computing Foundation (CNCF) is not an official standards body.  The OpenTracing API project is working towards creating more standardized APIs and instrumentation for distributed tracing.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>OpenTracing is comprised of an API specification, frameworks and libraries that have implemented the specification, and documentation for the project.   OpenTracing allows developers to add instrumentation to their application code using APIs that do not lock them into any one particular product or vendor.</p>
+</div>
+<div class="paragraph">
+<p>For more information about where OpenTracing has already been implemented, see the [list of languages](/docs/supported-languages) and the  [list of tracers](/docs/supported-tracers) that support the OpenTracing specification.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_is_a_span"><a class="anchor" href="#_what_is_a_span"></a>What is a Span?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The "<strong>span</strong>" is the primary building block of a distributed trace, representing an individual unit of work done in a distributed system.</p>
+</div>
+<div class="paragraph">
+<p>Each component of the distributed system contributes a span - a named, timed operation representing a piece of the workflow.</p>
+</div>
+<div class="paragraph">
+<p>Spans can (and generally do) contain "References" to other spans, which allows multiple Spans to be assembled into one complete <strong>Trace</strong> - a visualization of the life of a request as it moves through a distributed system.</p>
+</div>
+<div class="paragraph">
+<p>Each span encapsulates the following state according to the OpenTracing specification:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An operation name</p>
+</li>
+<li>
+<p>A start timestamp and finish timestamp</p>
+</li>
+<li>
+<p>A set of key:value span <strong>Tags</strong></p>
+</li>
+<li>
+<p>A set of key:value span <strong>Logs</strong></p>
+</li>
+<li>
+<p>A <strong>SpanContext</strong></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_tags"><a class="anchor" href="#_tags"></a>Tags</h3>
+<div class="paragraph">
+<p><strong>Tags</strong> are key:value pairs that enable user-defined annotation of spans in order to query, filter, and comprehend trace data.</p>
+</div>
+<div class="paragraph">
+<p>Span tags should apply to the <em>whole</em> span. There is a list available at [semantic_conventions.md](<a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md" class="bare">https://github.com/opentracing/specification/blob/master/semantic_conventions.md</a>) listing conventional span tags for common scenarios. Examples may include tag keys like <code>db.instance</code> to identify a database host, <code>http.status_code</code> to represent the HTTP response code, or <code>error</code> which can be set to True if the operation represented by the Span fails.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_logs"><a class="anchor" href="#_logs"></a>Logs</h3>
+<div class="paragraph">
+<p><strong>Logs</strong> are key:value pairs that are useful for capturing <em>timed</em> log messages and other debugging or informational output from the application itself.  Logs may be useful for documenting a specific moment or event within the span (in contrast to tags which should apply to the span regardless of time).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_baggage_items"><a class="anchor" href="#_baggage_items"></a>Baggage Items</h3>
+<div class="paragraph">
+<p>The <strong>SpanContext</strong> carries data across process boundaries. Specifically, it has two major components:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An implementation-dependent state to refer to the distinct span within a trace</p>
+</li>
+<li>
+<p>i.e., the implementing Tracer&#8217;s definition of spanID and traceID</p>
+</li>
+<li>
+<p>Any <strong>Baggage Items</strong></p>
+</li>
+<li>
+<p>These are key:value pairs that cross process-boundaries.</p>
+</li>
+<li>
+<p>These may be useful to have some data available for access throughout the trace.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tracer"><a class="anchor" href="#_tracer"></a>Tracer</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A <code>Tracer</code> is the actual implementation that will record the <code>Spans</code> and publish them somewhere. How an application handles the actual <code>Tracer</code> is up to the developer: either consume it directly throughout the application or store it in the <code>GlobalTracer</code> for easier usage with instrumented frameworks.</p>
+</div>
+<div class="paragraph">
+<p>Different <code>Tracer</code> implementations vary in how and what parameters they receive at initialization time, such as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Component name for this application&#8217;s traces.</p>
+</li>
+<li>
+<p>Tracing endpoint.</p>
+</li>
+<li>
+<p>Tracing credentials.</p>
+</li>
+<li>
+<p>Sampling strategy.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Once a <code>Tracer</code> instance is obtained, it can be used to manually create <code>Span</code>, or pass it to existing instrumentation for frameworks and libraries.</p>
+</div>
+<div class="paragraph">
+<p>In order to not force the user to keep around a <code>Tracer</code>, the <code>io.opentracing.util</code> artifact includes a helper <code>GlobalTracer</code> class implementing the <code>io.opentracing.Tracer</code> interface, which, as the name implies, acts as as a global instance that can be used from anywhere. It works by forwarding all operations to another underlying <code>Tracer</code>, that will get registered at some future point.</p>
+</div>
+<div class="paragraph">
+<p>By default, the underlying <code>Tracer</code> is a <code>no-nop</code> implementation.</p>
+</div>
+<div class="sect2">
+<h3 id="_starting_a_new_trace"><a class="anchor" href="#_starting_a_new_trace"></a>Starting a new Trace</h3>
+<div class="paragraph">
+<p>A new trace is started whenever a new <code>Span</code> is created without references to a parent <code>Span</code>. When creating a new <code>Span</code>, you need to specify an "operation name", which is a free-format string that you can use to help you identify the code this <code>Span</code> relates to.
+The next <code>Span</code> from our new trace will probably be a child <code>Span</code> and can be seen as a representation of a sub-routine that is executed "within" the main <code>Span</code>. This child <code>Span</code> has, therefore, a <code>ChildOf</code> relationship with the parent.
+Another type of relationship is the <code>FollowsFrom</code> and is used in special cases where the new <code>Span</code> is independent of the parent <code>Span</code>, such as in asynchronous processes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_accessing_the_active_span"><a class="anchor" href="#_accessing_the_active_span"></a>Accessing the Active Span</h3>
+<div class="paragraph">
+<p><code>Tracer</code> can be used for enabling access to the <code>ActiveSpan</code>. <code>ActiveSpans</code> can also be accessed through a <code>scopeManager</code> in some languages. Refer to the specific language guide for more implementation details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_propagating_a_trace_with_injectextract"><a class="anchor" href="#_propagating_a_trace_with_injectextract"></a>Propagating a Trace with Inject/Extract</h3>
+<div class="paragraph">
+<p>In order to trace across process boundaries in distributed systems, services need to be able to continue the trace injected by the client that sent each request. OpenTracing allows this to happen by providing inject and extract methods that encode a span&#8217;s context into a carrier.
+The <code>inject</code> method allows for the <code>SpanContext</code> to be passed on to a carrier. For example, passing the trace information into the client&#8217;s request so that the server you send it to can continue the trace. The <code>extract</code> method does the exact opposite. It extract the <code>SpanContext</code> from the carrier. For example, if there was an active request on the client side, the developer must extract the <code>SpanContext</code> using the <code>io.opentracing.Tracer.extract</code> method.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/Extract.png" alt="Trace Propagation">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Content extracted from <a href="http://opentracing.io" class="bare">http://opentracing.io</a>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
