@@ -2,7 +2,7 @@ runtime:
   cache_dir: ./.cache/antora
 
 site:
-  title: Learning Distributing Tracing 101
+  title: Learning Distributed Tracing 101
   url: https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/
   start_page: docs::index.adoc
 
