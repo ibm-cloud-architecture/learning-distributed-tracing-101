@@ -93,13 +93,16 @@
 <ul class="sectlevel1">
 <li><a href="#_understanding_jaeger">Understanding Jaeger</a></li>
 <li><a href="#_installing_the_jaeger_operator">Installing the Jaeger operator</a></li>
-<li><a href="#_creating_an_instance_of_jaeger">Creating an instance of Jaeger</a></li>
+<li><a href="#_openshift_3_creating_an_instance_of_jaeger">(OpenShift 3) Creating an instance of Jaeger</a></li>
+<li><a href="#_openshift_4_creating_an_instance_of_jaeger">(OpenShift 4) Creating an instance of Jaeger</a></li>
+<li><a href="#_verify_jaeger_instance_created">Verify Jaeger instance created</a></li>
 <li><a href="#_deploy_the_application">Deploy the Application</a></li>
+<li><a href="#_find_traces">Find Traces</a></li>
 </ul>
 </div>
 <div id="preamble">
 <div class="sectionbody">
-<h3 id="_general_instructions" class="discrete">General Instructions</h3>
+<h2 id="_general_instructions" class="discrete">General Instructions</h2>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -114,7 +117,7 @@
 <p>Change to the lab directory</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-ocp</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd learning-distrubing-tracing-101/lab-jaeger-ocp</code></pre>
 </div>
 </div>
 </li>
@@ -164,7 +167,41 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_creating_an_instance_of_jaeger"><a class="anchor" href="#_creating_an_instance_of_jaeger"></a>Creating an instance of Jaeger</h2>
+<h2 id="_openshift_3_creating_an_instance_of_jaeger"><a class="anchor" href="#_openshift_3_creating_an_instance_of_jaeger"></a>(OpenShift 3) Creating an instance of Jaeger</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Create a Custom Resource for Jaeger</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to the OpenShift Container Platform web console.</p>
+</li>
+<li>
+<p>Select project <code>operators</code></p>
+</li>
+<li>
+<p>Verify Jaeger Operator installed</p>
+</li>
+<li>
+<p>From the command line, create a Jaeger instance in the <code>default</code> namespace</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>kubectl apply -f - &lt;&lt;EOF
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: my-jaeger
+EOF</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openshift_4_creating_an_instance_of_jaeger"><a class="anchor" href="#_openshift_4_creating_an_instance_of_jaeger"></a>(OpenShift 4) Creating an instance of Jaeger</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Create a Custom Resource for Jaeger</p>
@@ -195,15 +232,24 @@
 <li>
 <p>Review yaml and Click Create</p>
 </li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verify_jaeger_instance_created"><a class="anchor" href="#_verify_jaeger_instance_created"></a>Verify Jaeger instance created</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Verify the Jaeger services in the <code>default</code> namespace</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get services -n default | grep jaeger
-my-jaeger-agent                ClusterIP      None            &lt;none&gt;                                 5775/TCP,5778/TCP,6831/TCP,6832/TCP      13m
-my-jaeger-collector            ClusterIP      172.30.31.3     &lt;none&gt;                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
-my-jaeger-collector-headless   ClusterIP      None            &lt;none&gt;                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
-my-jaeger-query                ClusterIP      172.30.244.60   &lt;none&gt;                                 443/TCP                                  13m</code></pre>
+my-jaeger-agent                ClusterIP      None             &lt;none&gt;      5775/UDP,5778/TCP,6831/UDP,6832/UDP      7m
+my-jaeger-collector            ClusterIP      172.21.191.135   &lt;none&gt;      9411/TCP,14250/TCP,14267/TCP,14268/TCP   7m
+my-jaeger-collector-headless   ClusterIP      None             &lt;none&gt;      9411/TCP,14250/TCP,14267/TCP,14268/TCP   7m
+my-jaeger-query                ClusterIP      172.21.89.78     &lt;none&gt;      443/TCP                                  7m</code></pre>
 </div>
 </div>
 </li>
@@ -255,7 +301,7 @@ my-jaeger   my-jaeger-default.apps-crc.testing          my-jaeger-query   &lt;al
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f istio-nodejs.yaml -n default</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f jaeger-nodejs.yaml -n default</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -418,6 +464,15 @@ service-a   service-a-default.apps-crc.testing          service-a   http   edge 
 </div>
 </div>
 </li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_find_traces"><a class="anchor" href="#_find_traces"></a>Find Traces</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Use curl or open browser with the endpoint URL using the HOST/PORT of the route</p>
 <div class="listingblock">

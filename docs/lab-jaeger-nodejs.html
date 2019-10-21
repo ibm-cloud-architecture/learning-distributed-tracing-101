@@ -147,14 +147,41 @@
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-nodejs</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>The solution to the lab is located in the directory <code>lab-jaeger-nodejs/solution</code></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The solution to the lab is located in the directory <code>lab-jaeger-nodejs/solution</code>
+</td>
+</tr>
+</table>
 </div>
-<div class="paragraph">
-<p>docker-compose is already configured to run Jaeger</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+docker-compose is already configured to run Jaeger
+</td>
+</tr>
+</table>
 </div>
-<div class="paragraph">
-<p>In case that stopping docker-compose doesn&#8217;t work with <code>Ctrl-C</code> you can stop using <code>docker-compose stop</code></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In case that stopping docker-compose doesn&#8217;t work with <code>Ctrl-C</code>, you can stop it using <code>docker-compose stop</code>
+</td>
+</tr>
+</table>
 </div>
 </li>
 </ol>
@@ -237,6 +264,7 @@ The json section should look like the following:</p>
     serviceName: serviceName
   }
   // Only for DEV the sampler will report every span
+  // Other sampler types are described here: https://www.jaegertracing.io/docs/1.7/sampling/
   config.sampler = { type: 'const', param: 1 }
 
   return initJaegerTracer(config)
@@ -260,6 +288,7 @@ opentracing.initGlobalTracer(tracer)</code></pre>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function tracingMiddleWare (req, res, next) {
   const tracer = opentracing.globalTracer();
+  // Extracting the tracing headers from the incoming http request
   const wireCtx = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
   // Creating our span with context from incoming request
   const span = tracer.startSpan(req.path, { childOf: wireCtx })
@@ -302,10 +331,7 @@ opentracing.initGlobalTracer(tracer)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This function will extract the tracing headers from the incoming http request using the function <code>tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)</code></p>
-</div>
-<div class="paragraph">
-<p>With this information, if the request contains trace information it will be used to create a child span from the previous service, the current service will be correctly associated in the tracing dependency graph.</p>
+<p>The <code>tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)</code> function above will attempt to extract the tracing headers from the incoming http request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated in the tracing dependency graph.</p>
 </div>
 <div class="paragraph">
 <p>The new span is created using the function <code>tracer.startSpan(req.path, { childOf: wireCtx })</code></p>
@@ -332,7 +358,7 @@ res.set(responseHeaders)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>When the request is finished by listening on the event <code>finish</code> in <code>res.on('finish', finishSpan)</code> the response is analyzed to check if there was an error, if it is an error then the span is set to be sampled and marked as error using the following functions including a log event:</p>
+<p>When the request is finished by listening on the event <code>finish</code> in <code>res.on('finish', finishSpan)</code>, the response is analyzed to check if there was an error. If it is an error then the span is set to be sampled and marked as error using the following functions which includes a log event:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -342,7 +368,7 @@ span.log({ event: 'error', message: res.statusMessage })</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For every http response the status Code is captured, a log event <code>request_end</code> that will easily see the time spent since the log event <code>request_start</code> . Finaly the span needs to be finished.</p>
+<p>For every http response the status Code and a log event are captured. With log event <code>request_end</code> you can will easily see the time spent since the log event <code>request_start</code> . Finaly the span needs to be finished.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -370,7 +396,7 @@ docker-compose up</code></pre>
 </div>
 </li>
 <li>
-<p>Call the same API endpoint a few times, but now is instrumented with tracing</p>
+<p>Now that the code is instrumented, call the same API endpoint a few times to capture the traces.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://localhost:8080/sayHello/Carlos
@@ -395,7 +421,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the http request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section have two logs one with <code>request_received</code> and the final log <code>request_end</code> this gives you how much time the request took to be processed by your service business logic. In this example it tool <code>4ms</code>.</p>
+<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the http request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section have two log events; one with <code>request_received</code> and the final log <code>request_end</code>. The timestamps for each of the log event give you how much time the request took to be processed by your service business logic. In this example it took <code>4ms</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-trace-details.jpg" alt="nodejs service a trace details">
@@ -420,7 +446,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻</code></pre>
 </div>
 </li>
 <li>
-<p>Click on the trace with the <code>Error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as <code>error</code> set to <code>true</code> and <code>http.status_code</code> se to <code>500</code>. The Logs section has an additional log event with <code>message = Internal Server Error</code> expand the log event.</p>
+<p>Click on the trace with the <code>Error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as <code>error</code> set to <code>true</code> and <code>http.status_code</code> se to <code>500</code>. The Logs section has an additional log event with <code>message = Internal Server Error</code>. Expand the log event.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-error-details.jpg" alt="nodejs service a error details">
@@ -435,7 +461,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻</code></pre>
 <h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow http requests</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In the <code>service-a</code> we have the API endpoint <code>/sayHello</code>, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow about 100ms.</p>
+<p>In the <code>service-a</code>, we have the API endpoint <code>/sayHello</code>. We used this endpoint in the previous section but called it only once. This endpoint has some strange behavior. Not all responses are fast (=~ 2ms) and often the response is slow (=~ 100ms).</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -474,14 +500,14 @@ done;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked <code>Find Traces</code>.
+<p>In the picture above, you can see a timeline graph with each trace represented with a circle. In this case, we have 15 traces in the result set when we clicked <code>Find Traces</code>.
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
-You can see the pattern that only every 3rd request the response is slow.
-When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by <code>Longest First</code>.</p>
+You can see the pattern where only every 3rd request the response is slow.
+When troubleshooting, we are interested first on the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by <code>Longest First</code>.</p>
 </div>
 </li>
 <li>
-<p>Select the trace that took the longest time 103ms, expand all the information for the single span operation <code>/sayHello</code> including tags and logs.</p>
+<p>Select the trace that took the longest time (103ms). Expand all the information for the single span operation <code>/sayHello</code> including tags and logs.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-slow-details.jpg" alt="nodejs service a slow details">
@@ -530,7 +556,7 @@ done;</code></pre>
 </div>
 </li>
 <li>
-<p>Open the Jaeger UI using the web browser</p>
+<p>Open the Jaeger UI using the web browser.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">open http://localhost:16686/jaeger</code></pre>
@@ -538,20 +564,23 @@ done;</code></pre>
 </div>
 </li>
 <li>
-<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code></p>
+<p>Select the Service <code>service-a</code> from the drop-down options and click <code>Find Traces</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-fast.jpg" alt="nodejs service a fast">
 </div>
 </div>
 <div class="paragraph">
-<p>You can see now that all http requests are fast and the problem is fixed</p>
+<p>You can see now that all http requests are fast and the problem is fixed.</p>
 </div>
 <div class="paragraph">
-<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.</p>
+<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Intrumenting the code of these microservices enable us to obverse their behavior and quicly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems.</p>
 </div>
 </li>
 </ol>
+</div>
+<div class="paragraph">
+<p>As demostrated in this exercise, you can increase the observality of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of an specific http handler and function.</p>
 </div>
 </div>
 </div>
@@ -673,8 +702,9 @@ Hello Carlos!</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Notice in the Tags section the tag is located with key <code>name</code> and the string value <code>Hello Carlos!</code>.
-Notice in the Logs section the log event with the name <code>name</code> and the message <code>this is a log message for name Carlos</code></p>
+<p>Notice:
+* in the Tags section the tag is located with key <code>name</code> and the string value <code>Hello Carlos!</code>.
+* in the Logs section the log event with the name <code>name</code> and the message <code>this is a log message for name Carlos</code></p>
 </div>
 </li>
 </ol>

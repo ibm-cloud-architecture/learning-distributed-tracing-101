@@ -114,7 +114,7 @@
 <p>Change to the lab directory</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd lab-jaeger-istio</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd learning-distrubing-tracing-101.git/lab-jaeger-istio</code></pre>
 </div>
 </div>
 </li>
@@ -151,12 +151,21 @@
 <h2 id="_installing_service_mesh_istio_operator"><a class="anchor" href="#_installing_service_mesh_istio_operator"></a>Installing Service Mesh (Istio) Operator</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>As part of the Service Mesh installation, the Jaeger operator is also installed, in addition Prometheus, Grafana, and Kiali are also configured and installed.</p>
+<p>The following operators and tools are installed and configure as part of the Service Mesh installation:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>OpenShift 4, You can use the CodeReady Containers for local development cluster <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned" class="bare">https://cloud.redhat.com/openshift/install/crc/installer-provisioned</a></p>
+<p>Jaeger operator</p>
+</li>
+<li>
+<p>Prometheus, Grafana, and Kiali</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>With OpenShift 4, you can use the <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned">CodeReady Containers</a> to setup a local development cluster</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -164,9 +173,6 @@
 </li>
 <li>
 <p><a href="https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html">Installing Red Hat OpenShift Service Mesh</a></p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>
