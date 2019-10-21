@@ -1,4 +1,5 @@
 # Distributing Tracing Lab
+[![CircleCI](https://circleci.com/gh/ibm-cloud-architecture/learning-distributed-tracing-101.svg?style=svg)](https://circleci.com/gh/ibm-cloud-architecture/learning-distributed-tracing-101)
 
 ## Learning Journey
 Access the learning modules https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101 
