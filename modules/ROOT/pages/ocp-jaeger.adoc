@@ -3,7 +3,8 @@
 :toc:
 
 [discrete]
-=== General Instructions
+
+== General Instructions
 
 . Clone the git repository
 +
@@ -16,7 +17,7 @@ git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing
 +
 [source, bash]
 ----
-cd lab-jaeger-ocp
+cd learning-distrubing-tracing-101/lab-jaeger-ocp
 ----
 
 == Understanding Jaeger
@@ -30,7 +31,25 @@ cd lab-jaeger-ocp
 * OpenShift 4, You can use the CodeReady Containers for local development cluster https://cloud.redhat.com/openshift/install/crc/installer-provisioned
 ** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html#ossm-operator-install-jaeger_installing-ossm[Installing the Jaeger Operator on OpenShift 4]
 
-== Creating an instance of Jaeger
+== (OpenShift 3) Creating an instance of Jaeger
+
+Create a Custom Resource for Jaeger
+
+. Log in to the OpenShift Container Platform web console.
+. Select project `operators` 
+. Verify Jaeger Operator installed
+. From the command line, create a Jaeger instance in the `default` namespace
+[source, bash]
+----
+kubectl apply -f - <<EOF
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: my-jaeger
+EOF
+----
+
+== (OpenShift 4) Creating an instance of Jaeger
 
 Create a Custom Resource for Jaeger
 
@@ -43,15 +62,17 @@ Create a Custom Resource for Jaeger
 . Edit namespace to your project for example `default`
 . Review yaml and Click Create
 
+== Verify Jaeger instance created
+
 . Verify the Jaeger services in the `default` namespace
 +
 [source, bash]
 ----
 oc get services -n default | grep jaeger
-my-jaeger-agent                ClusterIP      None            <none>                                 5775/TCP,5778/TCP,6831/TCP,6832/TCP      13m
-my-jaeger-collector            ClusterIP      172.30.31.3     <none>                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
-my-jaeger-collector-headless   ClusterIP      None            <none>                                 9411/TCP,14250/TCP,14267/TCP,14268/TCP   13m
-my-jaeger-query                ClusterIP      172.30.244.60   <none>                                 443/TCP                                  13m
+my-jaeger-agent                ClusterIP      None             <none>      5775/UDP,5778/TCP,6831/UDP,6832/UDP      7m
+my-jaeger-collector            ClusterIP      172.21.191.135   <none>      9411/TCP,14250/TCP,14267/TCP,14268/TCP   7m
+my-jaeger-collector-headless   ClusterIP      None             <none>      9411/TCP,14250/TCP,14267/TCP,14268/TCP   7m
+my-jaeger-query                ClusterIP      172.21.89.78     <none>      443/TCP                                  7m
 ----
 
 NOTE: Take a look at the `my-jaeger-collector` on port `14268/TCP` this is the service to be used by our services to send the Jaeger traces containing the spans, you will configure this in the kubernetes deployment yaml manifest.
@@ -77,7 +98,7 @@ Here is an example using Node.js services and deployments:
 +
 [source, bash]
 ----
-oc apply -f istio-nodejs.yaml -n default
+oc apply -f jaeger-nodejs.yaml -n default
 ----
 Let's look at the file content on how the services are defined to be deploy into OpenShift cluster:
 +
@@ -214,6 +235,8 @@ NAME        HOST/PORT                            PATH   SERVICES    PORT   TERMI
 service-a   service-a-default.apps-crc.testing          service-a   http   edge          None
 ----
 
+== Find Traces
+
 . Use curl or open browser with the endpoint URL using the HOST/PORT of the route
 +
 [source, bash]
@@ -233,8 +256,3 @@ image::ocp-jaeger-traces.png[]
 image::ocp-jaeger-spans.png[]
 
 Check one of the labs xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js] or xref:lab-jaeger-java.adoc[Lab Jaeger - Java] for a more in depth lab for Opentracing with Jaeger.
-
-
-
-
-

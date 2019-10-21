@@ -30,11 +30,11 @@ git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing
 cd lab-jaeger-nodejs
 ----
 +
-The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
+NOTE: The solution to the lab is located in the directory `lab-jaeger-nodejs/solution`
 +
-docker-compose is already configured to run Jaeger
+NOTE: docker-compose is already configured to run Jaeger
 +
-In case that stopping docker-compose doesn't work with `Ctrl-C` you can stop using `docker-compose stop`
+NOTE: In case that stopping docker-compose doesn't work with `Ctrl-C`, you can stop it using `docker-compose stop`
 
 
 == Test your environment
@@ -93,6 +93,7 @@ function initTracer (serviceName) {
     serviceName: serviceName
   }
   // Only for DEV the sampler will report every span
+  // Other sampler types are described here: https://www.jaegertracing.io/docs/1.7/sampling/
   config.sampler = { type: 'const', param: 1 }
 
   return initJaegerTracer(config)
@@ -114,6 +115,7 @@ opentracing.initGlobalTracer(tracer)
 ----
 function tracingMiddleWare (req, res, next) {
   const tracer = opentracing.globalTracer();
+  // Extracting the tracing headers from the incoming http request
   const wireCtx = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
   // Creating our span with context from incoming request
   const span = tracer.startSpan(req.path, { childOf: wireCtx })
@@ -156,10 +158,7 @@ function tracingMiddleWare (req, res, next) {
 ----
 
 +
-This function will extract the tracing headers from the incoming http request using the function `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)`
-
-+
-With this information, if the request contains trace information it will be used to create a child span from the previous service, the current service will be correctly associated in the tracing dependency graph.
+The `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)` function above will attempt to extract the tracing headers from the incoming http request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated in the tracing dependency graph.
 
 +
 The new span is created using the function `tracer.startSpan(req.path, { childOf: wireCtx })`
@@ -186,7 +185,7 @@ Object.assign(req, { span })
 ----
 
 +
-When the request is finished by listening on the event `finish` in `res.on('finish', finishSpan)` the response is analyzed to check if there was an error, if it is an error then the span is set to be sampled and marked as error using the following functions including a log event:
+When the request is finished by listening on the event `finish` in `res.on('finish', finishSpan)`, the response is analyzed to check if there was an error. If it is an error then the span is set to be sampled and marked as error using the following functions which includes a log event:
 +
 [source, javascript]
 ----
@@ -196,7 +195,7 @@ span.log({ event: 'error', message: res.statusMessage })
 ----
 
 +
-For every http response the status Code is captured, a log event `request_end` that will easily see the time spent since the log event `request_start` . Finaly the span needs to be finished.
+For every http response the status Code and a log event are captured. With log event `request_end` you can will easily see the time spent since the log event `request_start` . Finaly the span needs to be finished.
 +
 [source, javascript]
 ----
@@ -220,7 +219,7 @@ docker-compose build
 docker-compose up
 ----
 
-. Call the same API endpoint a few times, but now is instrumented with tracing
+. Now that the code is instrumented, call the same API endpoint a few times to capture the traces.
 +
 [source, bash]
 ----
@@ -239,7 +238,7 @@ open http://localhost:16686/jaeger
 +
 image::nodejs-service-a-find-trace.jpg[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section have two logs one with `request_received` and the final log `request_end` this gives you how much time the request took to be processed by your service business logic. In this example it tool `4ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section have two log events; one with `request_received` and the final log `request_end`. The timestamps for each of the log event give you how much time the request took to be processed by your service business logic. In this example it took `4ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -256,13 +255,13 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻
 +
 image::nodejs-service-a-error.jpg[]
 
-. Click on the trace with the `Error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as `error` set to `true` and `http.status_code` se to `500`. The Logs section has an additional log event with `message = Internal Server Error` expand the log event.
+. Click on the trace with the `Error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as `error` set to `true` and `http.status_code` se to `500`. The Logs section has an additional log event with `message = Internal Server Error`. Expand the log event.
 +
 image::nodejs-service-a-error-details.jpg[]
 
 == Finding slow http requests
 
-In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow about 100ms.
+In the `service-a`, we have the API endpoint `/sayHello`. We used this endpoint in the previous section but called it only once. This endpoint has some strange behavior. Not all responses are fast (=~ 2ms) and often the response is slow (=~ 100ms).
 
 . Stop docker-compose with `Ctrl+C` and start it again.
 [source, bash]
@@ -294,12 +293,12 @@ open http://localhost:16686/jaeger
 image::nodejs-service-a-slow.jpg[]
 
 +
-In the picture above, you can see a timeline graph with each trace represented with a circle, in this case, we have 15 traces in the result set when we clicked `Find Traces`.
+In the picture above, you can see a timeline graph with each trace represented with a circle. In this case, we have 15 traces in the result set when we clicked `Find Traces`.
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
-You can see the pattern that only every 3rd request the response is slow.
-When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
+You can see the pattern where only every 3rd request the response is slow.
+When troubleshooting, we are interested first on the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
 
-. Select the trace that took the longest time 103ms, expand all the information for the single span operation `/sayHello` including tags and logs.
+. Select the trace that took the longest time (103ms). Expand all the information for the single span operation `/sayHello` including tags and logs.
 +
 image::nodejs-service-a-slow-details.jpg[]
 
@@ -341,22 +340,24 @@ do curl http://localhost:8080/sayHello/Carlos -I -s | head -n 1; i=$((i+1));
 done;
 ----
 
-. Open the Jaeger UI using the web browser
+. Open the Jaeger UI using the web browser.
 +
 [source, bash]
 ----
 open http://localhost:16686/jaeger
 ----
 
-. Select the Service `service-a` from the drop-down options and click `Find Traces`
+. Select the Service `service-a` from the drop-down options and click `Find Traces`.
 +
 image::nodejs-service-a-fast.jpg[]
 
 +
-You can see now that all http requests are fast and the problem is fixed
+You can see now that all http requests are fast and the problem is fixed.
 
 +
-Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.
+Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Intrumenting the code of these microservices enable us to obverse their behavior and quicly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems. 
+
+As demostrated in this exercise, you can increase the observality of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of an specific http handler and function. 
 
 == Tracing an http handler
 
@@ -459,8 +460,9 @@ Notice in the result items table, for the trace item that the trace indicates th
 image::nodejs-service-a-span-details.jpg[]
 
 +
-Notice in the Tags section the tag is located with key `name` and the string value `Hello Carlos!`.
-Notice in the Logs section the log event with the name `name` and the message `this is a log message for name Carlos`
+Notice:
+* in the Tags section the tag is located with key `name` and the string value `Hello Carlos!`.
+* in the Logs section the log event with the name `name` and the message `this is a log message for name Carlos`
 
 == Tracing a function
 

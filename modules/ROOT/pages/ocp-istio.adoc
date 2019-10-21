@@ -16,7 +16,7 @@ git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing
 +
 [source, bash]
 ----
-cd lab-jaeger-istio
+cd learning-distrubing-tracing-101.git/lab-jaeger-istio
 ----
 
 == Understanding Jaeger, Service Mesh, Kiali
@@ -28,11 +28,15 @@ cd lab-jaeger-istio
 
 == Installing Service Mesh (Istio) Operator
 
-As part of the Service Mesh installation, the Jaeger operator is also installed, in addition Prometheus, Grafana, and Kiali are also configured and installed.
+The following operators and tools are installed and configure as part of the Service Mesh installation:
 
-* OpenShift 4, You can use the CodeReady Containers for local development cluster https://cloud.redhat.com/openshift/install/crc/installer-provisioned
-** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html[Preparing to install Red Hat OpenShift Service Mesh]
-** https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html[Installing Red Hat OpenShift Service Mesh]
+* Jaeger operator 
+* Prometheus, Grafana, and Kiali
+
+With OpenShift 4, you can use the https://cloud.redhat.com/openshift/install/crc/installer-provisioned[CodeReady Containers] to setup a local development cluster 
+
+* https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html[Preparing to install Red Hat OpenShift Service Mesh]
+* https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html[Installing Red Hat OpenShift Service Mesh]
 
 [IMPORTANT]
 Reducing resources when using local dev crc
