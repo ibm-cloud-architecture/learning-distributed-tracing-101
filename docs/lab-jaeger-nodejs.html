@@ -85,7 +85,7 @@
   </ul>
 </nav>
   <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/lab-jaeger-nodejs.adoc">Edit this Page</a></div>
-</div>
+  </div>
 <article class="doc">
 <h1 class="page">Distributing Tracing Lab - Node.js</h1>
 <div id="toc" class="toc">
@@ -446,7 +446,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻</code></pre>
 </div>
 </li>
 <li>
-<p>Click on the trace with the <code>Error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as <code>error</code> set to <code>true</code> and <code>http.status_code</code> se to <code>500</code>. The Logs section has an additional log event with <code>message = Internal Server Error</code>. Expand the log event.</p>
+<p>Click on the trace with the <code>Error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as <code>error</code> set to <code>true</code> and <code>http.status_code</code> set to <code>500</code>. The Logs section has an additional log event with <code>message = Internal Server Error</code>. Expand the log event.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-error-details.jpg" alt="nodejs service a error details">
@@ -474,7 +474,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻</code></pre>
 </div>
 </li>
 <li>
-<p>Run  the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.</p>
+<p>Run  the following code to call the API multiple times or open the URL endpoint <a href="http://localhost:8080/sayHello/Carlos" class="bare">http://localhost:8080/sayHello/Carlos</a> on the web browser and click refresh multiple time.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">i=0;
@@ -545,7 +545,7 @@ docker-compose up</code></pre>
 </div>
 </li>
 <li>
-<p>Run again the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.</p>
+<p>Run again the following code to call the API multiple times or open the URL endpoint <a href="http://localhost:8080/sayHello/Carlos" class="bare">http://localhost:8080/sayHello/Carlos</a> on the web browser and click refresh multiple time.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">i=0;
@@ -574,7 +574,7 @@ done;</code></pre>
 <p>You can see now that all http requests are fast and the problem is fixed.</p>
 </div>
 <div class="paragraph">
-<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Intrumenting the code of these microservices enable us to obverse their behavior and quicly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems.</p>
+<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enable us to obverse their behavior and quickly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems.</p>
 </div>
 </li>
 </ol>
@@ -628,7 +628,7 @@ This will allow the trace to have an additional child span. Use the function <co
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>log</code> you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
+<p>The opentracing API supports the method <code>log</code>. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const sayHello = async (req, res) =&gt; {
@@ -642,7 +642,7 @@ This will allow the trace to have an additional child span. Use the function <co
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>setTag</code> you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the <code>span.finish()</code> when you are done instrumenting the span.</p>
+<p>The opentracing API supports the method <code>setTag</code>. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the <code>span.finish()</code> when you are done instrumenting the span.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const sayHello = async (req, res) =&gt; {
@@ -855,7 +855,7 @@ const formatGreetingRemote = async (name, span) =&gt; {
 <p>The service <code>service-b</code> is already instrumented to trace every http request using the same procedure <a href="#tracing-every-http-request">Trace every http request</a> that we did for service <code>service-a</code>.</p>
 </li>
 <li>
-<p>Locate the file file <code>service-b/formatter.js</code> and add</p>
+<p>Locate the file <code>service-b/formatter.js</code> and add.</p>
 </li>
 <li>
 <p>Import at the top of the file <code>service-b/formatter.js</code> the <code>opentracing</code> module, and get the global tracer</p>
@@ -986,7 +986,7 @@ Hello Carlos!</code></pre>
 <h2 id="_baggage_propagation"><a class="anchor" href="#_baggage_propagation"></a>Baggage propagation</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Imagine a scenario where you want to redirect all Safari users to a specific version of a service using theUser-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.</p>
+<p>Imagine a scenario where you want to redirect all Safari users to a specific version of a service using the User-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.</p>
 </div>
 <div class="paragraph">
 <p>Baggage items are key:value string pairs that apply to the given Span, its SpanContext, and all Spans which directly or transitively reference the local Span. That is, baggage items propagate in-band along with the trace itself.</p>
