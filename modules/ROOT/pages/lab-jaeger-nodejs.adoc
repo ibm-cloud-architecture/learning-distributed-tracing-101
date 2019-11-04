@@ -271,7 +271,7 @@ docker-compose up
 ----
 
 
-. Run  the following code to call the API multiple times or open the URL endpoint \http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
+. Run  the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
 +
 [source, bash]
 ----
@@ -330,7 +330,7 @@ docker-compose build
 docker-compose up
 ----
 
-. Run again the following code to call the API multiple times or open the URL endpoint \http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
+. Run again the following code to call the API multiple times or open the URL endpoint http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
 +
 [source, bash]
 ----
