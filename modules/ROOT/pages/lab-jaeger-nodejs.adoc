@@ -255,7 +255,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻
 +
 image::nodejs-service-a-error.jpg[]
 
-. Click on the trace with the `Error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as `error` set to `true` and `http.status_code` se to `500`. The Logs section has an additional log event with `message = Internal Server Error`. Expand the log event.
+. Click on the trace with the `Error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as `error` set to `true` and `http.status_code` set to `500`. The Logs section has an additional log event with `message = Internal Server Error`. Expand the log event.
 +
 image::nodejs-service-a-error-details.jpg[]
 
@@ -271,7 +271,7 @@ docker-compose up
 ----
 
 
-. Run  the following code to call the API multiple times or open the URL endpoint \http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
+. Run  the following code to call the API multiple times or open the URL endpoint `http://localhost:8080/sayHello/Carlos` on the web browser and click refresh multiple time.
 +
 [source, bash]
 ----
@@ -330,7 +330,7 @@ docker-compose build
 docker-compose up
 ----
 
-. Run again the following code to call the API multiple times or open the URL endpoint \http://localhost:8080/sayHello/Carlos on the web browser and click refresh multiple time.
+. Run again the following code to call the API multiple times or open the URL endpoint `http://localhost:8080/sayHello/Carlos` on the web browser and click refresh multiple time.
 +
 [source, bash]
 ----
@@ -355,7 +355,7 @@ image::nodejs-service-a-fast.jpg[]
 You can see now that all http requests are fast and the problem is fixed.
 
 +
-Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Intrumenting the code of these microservices enable us to obverse their behavior and quicly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems. 
+Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enable us to obverse their behavior and quickly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems. 
 
 As demostrated in this exercise, you can increase the observality of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of an specific http handler and function. 
 
@@ -395,7 +395,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. The opentracing API supports the method `log` you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
+. The opentracing API supports the method `log`. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
 +
 [source, javascript]
 ----
@@ -408,7 +408,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. The opentracing API supports the method `setTag` you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the `span.finish()` when you are done instrumenting the span.
+. The opentracing API supports the method `setTag`. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the `span.finish()` when you are done instrumenting the span.
 +
 [source, javascript]
 ----
@@ -579,7 +579,7 @@ const formatGreetingRemote = async (name, span) => {
 
 . The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`.
 
-. Locate the file file `service-b/formatter.js` and add
+. Locate the file `service-b/formatter.js` and add.
 
 . Import at the top of the file `service-b/formatter.js` the `opentracing` module, and get the global tracer
 +
@@ -684,7 +684,7 @@ Is very useful to see the log events we instrumented in our endpoint handlers ac
 
 == Baggage propagation
 
-Imagine a scenario where you want to redirect all Safari users to a specific version of a service using theUser-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.
+Imagine a scenario where you want to redirect all Safari users to a specific version of a service using the User-Agent HTTP header. This is useful in canary deployments when a new version is rolled out for a specific subset of users. However, the header is present only at the first service. If the routing rule is for a service lower in a call graph then the header has to be propagated through all intermediate services. This is a great use-case for distributed context propagation which is a feature of many tracing systems.
 
 Baggage items are key:value string pairs that apply to the given Span, its SpanContext, and all Spans which directly or transitively reference the local Span. That is, baggage items propagate in-band along with the trace itself.
 
