@@ -1,8 +1,9 @@
 * xref:index.adoc[Overview]
 * xref:distributed_tracing.adoc[Distributed Tracing]
-* xref:lab-jaeger-nodejs.adoc[Lab 1 - Node.js]
-* xref:lab-jaeger-java.adoc[Lab 2 - Java]
-* xref:ocp-jaeger.adoc[Lab 3 - OpenShift(k8s)]
-* xref:ocp-istio.adoc[Lab 4 - Service Mesh(Istio)]
+* xref:lab-jaeger-nodejs.adoc[Lab 1 Node.js]
+* xref:lab-jaeger-java.adoc[Lab 2 Java]
+* xref:ocp-jaeger.adoc[Lab 3 Kubernetes]
+* xref:ocp-istio.adoc[Lab 4 Istio Java]
+* xref:ocp-istio-nodejs.adoc[Lab 5 Istio Node.js]
 * xref:references.adoc[References]
 
