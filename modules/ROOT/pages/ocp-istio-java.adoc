@@ -257,7 +257,7 @@ In the yaml deployment manifest there are few items to point out:
 *** THe Pod template should have the following labels defined `app` and `version`
 
 
-. The `pom.xml` for each service contains the dependency for zipkin to handle the B3 headers that Istio Envoy proxy forwards, this way allowing for end to end propagation. The dependencies related to opentracing in the file `pom.xml` for the service looks like this:
+. The `pom.xml` for each service contains the dependency for zipkin to handle the B3 headers that Istio Envoy proxy forwards, this way allowing for end to end propagation. The source code is available in their respective directories `service-a` and `service-b`, the dependencies related to opentracing in the file `pom.xml` for the service looks like this:
 +
 [source, xml]
 ----
