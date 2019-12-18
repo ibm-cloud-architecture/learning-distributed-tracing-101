@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Using Jaeger in Service Mesh(Istio) :: Learning Distributed Tracing 101</title>
+    <link rel="canonical" href="https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/docs/ocp-istio-java.html">
+    <meta name="generator" content="Antora 2.0.1">
+    <link rel="stylesheet" href="../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header" role="banner">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <p>Learning Distributed Tracing 101</p>
+      </div>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+    </div>
+  </nav>
+</header><div class="body">
+<div class="nav-container" data-component="docs" data-version="master">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="index.html">Learning Distributed Tracing 101</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">Overview</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="distributed_tracing.html">Distributed Tracing</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-nodejs.html">Lab 1 Node.js</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="lab-jaeger-java.html">Lab 2 Java</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-jaeger.html">Lab 3 Jaeger on Kubernetes</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="ocp-istio-java.html">Lab 4 Istio Java</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="ocp-istio-nodejs.html">Lab 5 Istio Node.js</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="references.html">References</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Learning Distributed Tracing 101</span>
+    <span class="version">master</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <span class="title">Learning Distributed Tracing 101</span>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">master</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main>
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">Learning Distributed Tracing 101</a></li>
+    <li><a href="ocp-istio-java.html">Lab 4 Istio Java</a></li>
+  </ul>
+</nav>
+  <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/ocp-istio-java.adoc">Edit this Page</a></div>
+  </div>
+<article class="doc">
+<h1 class="page">Using Jaeger in Service Mesh(Istio)</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_understanding_jaeger_service_mesh_kiali">Understanding Jaeger, Service Mesh, Kiali</a></li>
+<li><a href="#_installing_service_mesh_istio_operator">Installing Service Mesh (Istio) Operator</a></li>
+<li><a href="#_verify_service_mesh_installation">Verify Service Mesh installation</a></li>
+<li><a href="#_deploy_the_application">Deploy the Application</a></li>
+</ul>
+</div>
+<div id="preamble">
+<div class="sectionbody">
+<h3 id="_general_instructions" class="discrete">General Instructions</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Clone the git repository</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Change to the lab directory for <strong>Java</strong></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd learning-distrubing-tracing-101.git/lab-jaeger-istio-java</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_understanding_jaeger_service_mesh_kiali"><a class="anchor" href="#_understanding_jaeger_service_mesh_kiali"></a>Understanding Jaeger, Service Mesh, Kiali</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Read the OpenShift Documentation for:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/ossm-jaeger.html">Understanding Jaeger</a></p>
+</li>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/understanding-ossm.html">Understanding Service Mesh</a></p>
+</li>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/ossm-kiali.html">Understanding Kiali</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installing_service_mesh_istio_operator"><a class="anchor" href="#_installing_service_mesh_istio_operator"></a>Installing Service Mesh (Istio) Operator</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following operators and tools are installed and configure as part of the Service Mesh installation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Jaeger operator</p>
+</li>
+<li>
+<p>Prometheus, Grafana, and Kiali</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>With OpenShift 4, you can use the <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned">CodeReady Containers</a> to setup a local development cluster</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html">Preparing to install Red Hat OpenShift Service Mesh</a></p>
+</li>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html">Installing Red Hat OpenShift Service Mesh</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verify_service_mesh_installation"><a class="anchor" href="#_verify_service_mesh_installation"></a>Verify Service Mesh installation</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Verify that istio components are installed in the namespace <code>istio-system</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n istio-system</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                                    READY   STATUS    RESTARTS   AGE
+grafana-cf5ccd86-dtcl8                  2/2     Running   0          2m9s
+istio-citadel-7cb44f4bb-hlzdc           1/1     Running   0          5m42s
+istio-egressgateway-58f4b474c4-mlj8v    1/1     Running   0          2m50s
+istio-galley-75599dbc67-ch2tv           1/1     Running   0          4m46s
+istio-ingressgateway-769c96c46f-dlrv8   1/1     Running   0          2m50s
+istio-pilot-7bd6bc45cf-rcfdl            2/2     Running   0          3m29s
+istio-policy-56476c984b-44sw5           2/2     Running   0          4m23s
+istio-sidecar-injector-55c7bf57-x25rr   1/1     Running   0          2m34s
+istio-telemetry-d5bbd7d7b-pqv8r         2/2     Running   0          4m23s
+jaeger-5d9dfdfb67-658t5                 2/2     Running   0          4m51s
+kiali-597c76cc67-5qs2d                  1/1     Running   0          52s
+prometheus-685bdbdc45-rljkq             2/2     Running   0          5m23s</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify services in the namespace <code>istio-system</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get services -n istio-system</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                  AGE
+grafana                     ClusterIP   172.30.100.181   &lt;none&gt;        3000/TCP                                 21h
+istio-citadel               ClusterIP   172.30.63.141    &lt;none&gt;        8060/TCP,15014/TCP                       21h
+istio-egressgateway         ClusterIP   172.30.118.88    &lt;none&gt;        80/TCP,443/TCP,15443/TCP                 21h
+istio-galley                ClusterIP   172.30.166.57    &lt;none&gt;        443/TCP,15014/TCP,9901/TCP               21h
+istio-ingressgateway        ClusterIP   172.30.57.186    &lt;none&gt;        15020/TCP,80/TCP,443/TCP,15443/TCP       21h
+istio-pilot                 ClusterIP   172.30.231.3     &lt;none&gt;        15010/TCP,15011/TCP,8080/TCP,15014/TCP   21h
+istio-policy                ClusterIP   172.30.118.207   &lt;none&gt;        9091/TCP,15004/TCP,15014/TCP             21h
+istio-sidecar-injector      ClusterIP   172.30.175.36    &lt;none&gt;        443/TCP                                  21h
+istio-telemetry             ClusterIP   172.30.107.108   &lt;none&gt;        9091/TCP,15004/TCP,15014/TCP,42422/TCP   21h
+jaeger-agent                ClusterIP   None             &lt;none&gt;        5775/TCP,5778/TCP,6831/TCP,6832/TCP      21h
+jaeger-collector            ClusterIP   172.30.127.247   &lt;none&gt;        9411/TCP,14250/TCP,14267/TCP,14268/TCP   21h
+jaeger-collector-headless   ClusterIP   None             &lt;none&gt;        9411/TCP,14250/TCP,14267/TCP,14268/TCP   21h
+jaeger-query                ClusterIP   172.30.215.78    &lt;none&gt;        16686/TCP                                21h
+kiali                       NodePort    172.30.46.193    &lt;none&gt;        20001:32087/TCP                          21h
+prometheus                  ClusterIP   172.30.5.101     &lt;none&gt;        9090/TCP                                 21h
+zipkin                      ClusterIP   172.30.62.142    &lt;none&gt;        9411/TCP                                 21h</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that the ServiceMeshMemberRoll includes the target namespace for example <code>default</code> as one of the <code>MEMBERS</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get ServiceMeshMemberRoll -n istio-system
+NAME      MEMBERS
+default   [default bookinfo]</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify routes in to the different UI dashboards for Jaeger, Grafana, and Kiali</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route -n istio-system</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify the output, make sure <code>jaeger-query</code> is using <code>edge</code> for tls termination, if not you can use <code>oc edit service jaeger-query -n istio-system</code> and change it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">NAME                   HOST/PORT                                            PATH   SERVICES               PORT    TERMINATION   WILDCARD
+grafana                grafana-istio-system.apps-crc.testing                       grafana                &lt;all&gt;   reencrypt     None
+istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                  None
+jaeger                 jaeger-istio-system.apps-crc.testing                        jaeger-query           &lt;all&gt;   edge          None
+kiali                  kiali-istio-system.apps-crc.testing                         kiali                  &lt;all&gt;   reencrypt     None
+prometheus             prometheus-istio-system.apps-crc.testing                    prometheus             &lt;all&gt;   reencrypt     None</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Open the different UIs in the browser using the route&#8217;s values for HOST/PORT</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Jaeger: <a href="https://jaeger-istio-system.apps-crc.testing" class="bare">https://jaeger-istio-system.apps-crc.testing</a></p>
+</li>
+<li>
+<p>Grafana: <a href="https://grafana-istio-system.apps-crc.testing" class="bare">https://grafana-istio-system.apps-crc.testing</a></p>
+</li>
+<li>
+<p>Kiali: <a href="https://kiali-istio-system.apps-crc.testing" class="bare">https://kiali-istio-system.apps-crc.testing</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deploy_the_application"><a class="anchor" href="#_deploy_the_application"></a>Deploy the Application</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy the services <code>service-a</code> and <code>service-b</code></p>
+<div class="paragraph">
+<p>Use the file <code>istio-java.yaml</code> for Java</p>
+</div>
+<div class="paragraph">
+<p>Here is an example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f istio-java.yaml -n default</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s look at the file content on how the services are defined to be deploy into OpenShift cluster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-a-java-istio
+          #image: image-registry.openshift-image-registry.svc:5000/default/service-a-java-istio
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+            - name: SERVICE_FORMATTER
+              value: service-b
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+spec:
+  ports:
+    - port: 8081
+      name: http
+  selector:
+    app: service-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: csantanapr/service-b-java-istio
+          #image: image-registry.openshift-image-registry.svc:5000/default/service-b-java-istio
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the yaml deployment manifest there are few items to point out:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ports</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The port for the container is specified in the service and the container in the deployment, for example <code>service-a</code> with port <code>8080</code> and <code>service-b</code> with port <code>8081</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Environment Variables</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The variable <code>JAEGER_ENDPOINT</code> is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service <code><a href="http://jaeger-collector.istio-system.svc:14268/api/traces" class="bare">http://jaeger-collector.istio-system.svc:14268/api/traces</a></code> that is deployed on the namespace <code>istio-system</code>.</p>
+</li>
+<li>
+<p>The variable <code>SERVICE_FORMATTER</code> used by <code>service-a</code> to indicate the hostname of <code>service-b</code> that will use to format the hello message.</p>
+</li>
+<li>
+<p>The variable <code>JAEGER_PROPAGATION</code> is set to <code>b3</code> this is necessary because the Envoy proxy does not recognize Jaeger&#8217;s default on-the-wire representation of the trace context, but it does recognize Zipkin&#8217;s B3 headers. This configuration instructs the Jaeger tracer to use B3 headers instead of its default ones.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Istio has certain <a href="https://istio.io/docs/setup/additional-setup/requirements/">specific requirements</a> the ones we used in our yaml manifest are the following</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Named service ports</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>The service port name value start with <code>http</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Deployment with app and version labels</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>THe Pod template should have the following labels defined <code>app</code> and <code>version</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The <code>pom.xml</code> for each service contains the dependency for zipkin to handle the B3 headers that Istio Envoy proxy forwards, this way allowing for end to end propagation. The source code is available in their respective directories <code>service-a</code> and <code>service-b</code>, the dependencies related to opentracing in the file <code>pom.xml</code> for the service looks like this:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;io.opentracing&lt;/groupId&gt;
+  &lt;artifactId&gt;opentracing-api&lt;/artifactId&gt;
+  &lt;version&gt;0.33.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;io.opentracing.contrib&lt;/groupId&gt;
+  &lt;artifactId&gt;opentracing-spring-cloud-starter&lt;/artifactId&gt;
+  &lt;version&gt;0.3.7&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;io.jaegertracing&lt;/groupId&gt;
+  &lt;artifactId&gt;jaeger-client&lt;/artifactId&gt;
+  &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;io.jaegertracing&lt;/groupId&gt;
+  &lt;artifactId&gt;jaeger-zipkin&lt;/artifactId&gt;
+  &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Deploy the Istio Gateway and VirtualService</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f gateway.yaml -n default</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is the content of <code>gateway.yaml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: distributing-tracing-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: distributing-tracing
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - distributing-tracing-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /sayHello
+      route:
+        - destination:
+            host: service-a
+            port:
+              number: 8080</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify services are deployed and running:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get all -l app=service-a -n default
+oc get all -l app=service-b -n default
+NAME                             READY     STATUS    RESTARTS   AGE
+pod/service-a-74cd5c6496-nvllm   2/2       Running   0          6m7s
+pod/service-b-674f96464b-hbmg7   2/2       Running   0          6m44s
+
+NAME                TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/service-a   ClusterIP   172.30.44.43   &lt;none&gt;        8080/TCP   6m7s
+service/service-b   ClusterIP   172.30.115.93   &lt;none&gt;        8081/TCP   6m45s
+
+NAME                        READY     UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-a   1/1       1            1           6m7s
+deployment.apps/service-b   1/1       1            1           6m44s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the under the <code>READY</code> column for pods, it shows that there are two (2/2) containers running, one of them is the istio side card proxy.</p>
+</div>
+</li>
+<li>
+<p>Get the hostname for the Istio ingress gateway</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route -n istio-system istio-ingressgateway
+NAME                   HOST/PORT                                            PATH   SERVICES               PORT   TERMINATION   WILDCARD
+istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                 None</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Use curl or open a browser with the endpoint URL using the HOST/PORT of the route</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">curl http://istio-ingressgateway-istio-system.apps-crc.testing/sayHello/Carlos</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice in the output that the message was formatted by service-b</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">Hello, from service-b Carlos!</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>From the result you can see that <code>service-a</code> calls <code>service-b</code> and replies back.</p>
+</div>
+</li>
+<li>
+<p>In the Jaeger UI select <code>istio-ingressgateway</code> or <code>service-a</code> and click <strong>Find Traces</strong></p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/istio-java-jaeger-traces.png" alt="istio java jaeger traces">
+</div>
+</div>
+<div class="paragraph">
+<p>You can see 7 Spans in a single trace starting from the <code>istio-ingressgateway</code> ending in <code>service-b.default</code></p>
+</div>
+</li>
+<li>
+<p>Click on one of the traces and expand the spans in the trace</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/istio-java-jaeger-spans.png" alt="istio java jaeger spans">
+</div>
+</div>
+<div class="paragraph">
+<p>Check one of the labs <a href="lab-jaeger-nodejs.html" class="page">Lab Jaeger - Node.js</a> or <a href="#">lab-java-jaeger-java.adoc</a> for a more in depth lab for Opentracing with Jaeger.</p>
+</div>
+</li>
+<li>
+<p>In the Kiali UI select Graph to see a topology view of the services, you can enable traffic animation under Display to see the flow of http requests</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/istio-java-kiali.png" alt="istio java kiali">
+</div>
+</div>
+</li>
+<li>
+<p>In the Grafana UI select the Dashboard <strong>Istio Workload Dashboard</strong> or <strong>Istio Service Dashboard</strong> to see monitoring and metrics data for your services</p>
+<div class="imageblock">
+<div class="content">
+<img src="_images/istio-java-grafana.png" alt="istio java grafana">
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script src="../_/js/site.js"></script>
+<script async src="../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
