@@ -35,7 +35,7 @@ spec:
       containers:
         - name: app
           image: csantanapr/service-a-nodejs-istio
-          #image: image-registry.openshift-image-registry.svc:5000/default/service-a-nodejs
+          #image: image-registry.openshift-image-registry.svc:5000/default/service-a-nodejs-istio
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces
@@ -81,7 +81,7 @@ spec:
       containers:
         - name: app
           image: csantanapr/service-b-nodejs-istio
-          #image: image-registry.openshift-image-registry.svc:5000/default/service-b-nodejs
+          #image: image-registry.openshift-image-registry.svc:5000/default/service-b-nodejs-istio
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces

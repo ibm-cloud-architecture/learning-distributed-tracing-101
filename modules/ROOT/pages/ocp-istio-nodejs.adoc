@@ -133,13 +133,13 @@ prometheus             prometheus-istio-system.apps-crc.testing                 
 
 . Deploy the services `service-a` and `service-b`
 +
-Use the file `istio-java.yaml` for Node.js 
+Use the file `istio-nodejs.yaml` for Node.js 
 +
 Here is an example:
 +
 [source, bash]
 ----
-oc apply -f istio-java.yaml -n default
+oc apply -f istio-nodejs.yaml -n default
 ----
 Let's look at the file contents on how the services are defined to be deploy into OpenShift cluster:
 +
