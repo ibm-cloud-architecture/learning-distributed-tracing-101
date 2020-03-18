@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.17
+    ports:
+      - "16686:16686"
+    restart: on-failure
+  service-a:
+    build: ./service-a
+    links:
+      - jaeger
+      - service-b
+    depends_on:
+      - jaeger
+      - service-b
+    ports:
+      - "9080:9080"
+    environment:
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_REPORTER_LOG_SPANS: "true"
+      JAEGER_SAMPLER_TYPE: const
+      JAEGER_SAMPLER_PARAM: 1
+      SERVICE_FORMATTER: service-b
+  service-b:
+    build: ./service-b
+    links:
+      - jaeger
+    depends_on:
+      - jaeger
+    ports:
+      - "9081:9081"
+    environment:
+      JAEGER_AGENT_HOST: jaeger
+      JAEGER_REPORTER_LOG_SPANS: "true"
+      JAEGER_SAMPLER_TYPE: const
+      JAEGER_SAMPLER_PARAM: 1
