@@ -16,7 +16,7 @@ git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing
 +
 [source, bash]
 ----
-cd learning-distrubing-tracing-101.git/lab-jaeger-istio-ol
+cd learning-distributed-tracing-101/lab-jaeger-istio-ol
 ----
 
 == Understanding Jaeger, Service Mesh, Kiali
@@ -37,6 +37,7 @@ With OpenShift 4, you can use the https://cloud.redhat.com/openshift/install/crc
 
 * https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html[Preparing to install Red Hat OpenShift Service Mesh]
 * https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html[Installing Red Hat OpenShift Service Mesh]
+* https://learn.openshift.com/introduction/getting-started/[Familiarize yourself with OpenShift command-line and console]
 
 == Verify Service Mesh installation
 
@@ -129,7 +130,55 @@ prometheus             prometheus-istio-system.apps-crc.testing                 
 ** Grafana: https://grafana-istio-system.apps-crc.testing
 ** Kiali: https://kiali-istio-system.apps-crc.testing
 
-== Deploy the Application
+== Build the Applications
+
+The next step is to build the applications inside OpenShift, so that they become available in the OpenShift registry for the deployment in the next section:
+
+[source, bash]
+----
+cd learning-distrubing-tracing-101
+oc new-app . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-a --name service-a-openliberty-istio
+----
+
+You can follow the build progress through the OpenShift console from the "Developer" perspective, then clicking on "Builds" and selecting the corresponding build name (`service-a`), the selecting the `Logs` tab.
+
+You can also follow the build progress via command-line, with this command:
+
+[source, bash]
+----
+oc logs -f bc/service-a-openliberty-istio
+----
+
+You should see the following message upon build completion:
+
+----
+...
+Writing manifest to image destination
+Storing signatures
+Successfully pushed image-registry.openshift-image-registry.svc:5000/default/service-a-openliberty-istio@sha256:14dc4b440e94066818d1ac9d4b06132d61c61a347c5230971159e059c9adf5de
+Push successful
+----
+
+Now build `service-b`:
+
+[source, bash]
+----
+cd learning-distrubing-tracing-101
+oc new-app . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-b --name service-b-openliberty-istio
+----
+
+Once again, you can follow the build progress via OpenShift console or by observing the build logs with the following command:
+
+[source, bash]
+----
+oc logs -f bc/service-b-openliberty-istio
+----
+
+After both builds are completed,
+
+
+
+== Deploy the Applications
 
 . Deploy the services `service-a` and `service-b`
 +
@@ -139,8 +188,10 @@ Here is an example:
 +
 [source, bash]
 ----
-oc apply -f istio-java.yaml -n default
+cd learning-distributed-tracing-101/lab-jaeger-istio-ol
+oc apply -f istio-openliberty.yaml -n default
 ----
++
 Let's look at the file content on how the services are defined to be deploy into OpenShift cluster:
 +
 [source, yaml]
@@ -181,8 +232,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: nastacio/service-a-jee-istio
-          #image: image-registry.openshift-image-registry.svc:5000/default/service-a-java-istio
+          image: image-registry.openshift-image-registry.svc:5000/default/service-a-openliberty-lab
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces
@@ -235,8 +285,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: nastacio/service-b-jee-istio
-          #image: image-registry.openshift-image-registry.svc:5000/default/service-b-java-istio
+          image: image-registry.openshift-image-registry.svc:5000/default/service-b
           env:
             - name: JAEGER_ENDPOINT
               value: http://jaeger-collector.istio-system.svc:14268/api/traces
@@ -286,6 +335,7 @@ In the yaml deployment manifest there are few items to point out:
 +
 [source, bash]
 ----
+cd learning-distributed-tracing-101/lab-jaeger-istio-ol
 oc apply -f gateway.yaml -n default
 ----
 +
