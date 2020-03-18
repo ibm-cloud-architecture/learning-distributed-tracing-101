@@ -17,7 +17,7 @@ FROM openliberty/open-liberty:20.0.0.3-kernel-java8-openj9-ubi as runner
 
 # Copy jar file over from builder stage
 ENV WAR_NAME=service-b.war
-COPY --from=builder target/solution-$WAR_NAME /opt/ol/wlp/usr/servers/defaultServer/apps/$WAR_NAME
+COPY --from=builder target/$WAR_NAME /opt/ol/wlp/usr/servers/defaultServer/apps/$WAR_NAME
 COPY --from=builder target/liberty/wlp/usr/servers/defaultServer/server.xml /opt/ol/wlp/usr/servers/defaultServer
 COPY --from=builder target/liberty/wlp/usr/servers/defaultServer/bootstrap.properties /opt/ol/wlp/usr/servers/defaultServer
 
