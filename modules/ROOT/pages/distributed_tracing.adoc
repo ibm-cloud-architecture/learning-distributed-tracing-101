@@ -51,7 +51,7 @@ Span tags should apply to the _whole_ span. There is a list available at [semant
 
 === Logs
 
-**Logs** are key:value pairs that are useful for capturing _timed_ log messages and other debugging or informational output from the application itself.  Logs may be useful for documenting a specific moment or event within the span (in contrast to tags which should apply to the span regardless of time).
+**Logs** are key:value pairs that are useful for capturing _timed_ log messages and other debugging or informational output from the application itself.  Logs may be useful for documenting a specific moment or event within the span (in contrast to tags that should apply to the span regardless of time).
 
 === Baggage Items
 
@@ -76,7 +76,7 @@ Different `Tracer` implementations vary in how and what parameters they receive 
 
 Once a `Tracer` instance is obtained, it can be used to manually create `Span`, or pass it to existing instrumentation for frameworks and libraries.
 
-In order to not force the user to keep around a `Tracer`, the `io.opentracing.util` artifact includes a helper `GlobalTracer` class implementing the `io.opentracing.Tracer` interface, which, as the name implies, acts as as a global instance that can be used from anywhere. It works by forwarding all operations to another underlying `Tracer`, that will get registered at some future point.
+In order to not force the user to keep around a `Tracer`, the `io.opentracing.util` artifact includes a helper `GlobalTracer` class implementing the `io.opentracing.Tracer` interface, which, as the name implies, acts as a global instance that can be used from anywhere. It works by forwarding all operations to another underlying `Tracer`, that will get registered at some future point.
 
 By default, the underlying `Tracer` is a `no-nop` implementation.
 
@@ -94,7 +94,7 @@ Another type of relationship is the `FollowsFrom` and is used in special cases w
 === Propagating a Trace with Inject/Extract
 
 In order to trace across process boundaries in distributed systems, services need to be able to continue the trace injected by the client that sent each request. OpenTracing allows this to happen by providing inject and extract methods that encode a span's context into a carrier.
-The `inject` method allows for the `SpanContext` to be passed on to a carrier. For example, passing the trace information into the client's request so that the server you send it to can continue the trace. The `extract` method does the exact opposite. It extract the `SpanContext` from the carrier. For example, if there was an active request on the client side, the developer must extract the `SpanContext` using the `io.opentracing.Tracer.extract` method.
+The `inject` method allows for the `SpanContext` to be passed on to a carrier. For example, passing the trace information into the client's request so that the server you send it to can continue the trace. The `extract` method does the exact opposite. It extracts the `SpanContext` from the carrier. For example, if there was an active request on the client side, the developer must extract the `SpanContext` using the `io.opentracing.Tracer.extract` method.
 
 
 image::Extract.png[Trace Propagation]

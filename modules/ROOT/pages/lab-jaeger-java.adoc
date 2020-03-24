@@ -66,7 +66,7 @@ Hello Carlos!
 
 == Add client libraries
 
-. Add the tracing client library for the java `service-a`, edit the file `service-a/pom.xml` and add the dependenceies for `opentracing-api`, `opentracing-spring-cloud-starter`, and `jaeger-client`
+. Add the tracing client library for the java `service-a`, edit the file `service-a/pom.xml` and add the dependencies for `opentracing-api`, `opentracing-spring-cloud-starter`, and `jaeger-client`
 The `pom.xml` section should look like the following:
 +
 [source, xml]
@@ -91,7 +91,7 @@ The `pom.xml` section should look like the following:
 ----
 
 [# tracing-every-http-request]
-== Tracing every http request
+== Tracing every HTTP request
 
 . Add A Bean to initialized the Tracer in the main Class in the file `src/main/java/com/example/servicea/DemoApplication.java`
 +
@@ -142,7 +142,7 @@ open http://localhost:16686/jaeger
 +
 image::java-service-a-find-trace.png[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section have two logs one with `preHandle` and the final log `afterCompletion` this gives you how much time the request took to be processed by your service business logic. In this example it took `8ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the HTTP request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section has two logs one with `preHandle` and the final log `afterCompletion` this gives you how much time the request took to be processed by your service business logic. In this example, it took `8ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -159,11 +159,11 @@ HTTP/1.1 500
 +
 image::java-service-a-error.png[]
 
-. Click on the trace with the `/error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as the `http.status_code` se to `500`.
+. Click on the trace with the `/error`, then expand the trace's `Tags` and `Logs`. You should see information about the trace such as the `http.status_code` set to `500`.
 +
 image::java-service-a-error-details.png[]
 
-== Finding slow http requests
+== Finding slow HTTP requests
 
 In the `service-a` we have the API endpoint `/sayHello`, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow 100ms.
 
@@ -202,7 +202,7 @@ Some traces are taking approximately 100ms and others are taking approximately 2
 You can see the pattern that only every 3rd request the response is slow.
 When troubleshooting we are interested first on the slowest requests, you can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
 
-. Select the trace that took the longest time 103ms, expand all the information for the single span operation `/sayHello` including tags and logs.
+. Select the trace that took the longest time 103ms, expand all the information for the single-span operation `/sayHello` including tags and logs.
 +
 image::java-service-a-slow-details.png[]
 
@@ -254,12 +254,12 @@ open http://localhost:16686/jaeger
 image::java-service-a-fast.png[]
 
 +
-You can see now that all http requests are fast and the problem is fixed
+You can see now that all HTTP requests are fast and the problem is fixed
 
 +
-Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.
+Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows us to narrow down to a specific service, and within that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.
 
-== Tracing an http handler
+== Tracing an HTTP handler
 
 In the previous example, we were able to identify the endpoint `/sayHello` as one of interest in our service. Let's see how can we add tracing instrumentation to the function that is handling this endpoint.
 
@@ -280,7 +280,7 @@ import io.opentracing.Tracer;
     private Tracer tracer;
 ----
 
-. Locate the method `sayHello` and and wrap the code in a try with a scope, this will create a new child span.
+. Locate the method `sayHello` and wrap the code in a try with a scope, this will create a new child span.
 +
 [source, java]
 ----
@@ -305,7 +305,7 @@ public String sayHello(@PathVariable String name) {
 }
 ----
 
-. The opentracing API supports the method `log` you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
+. The OpenTracing API supports the method `log` you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
 +
 [source, java]
 ----
@@ -324,7 +324,7 @@ public String sayHello(@PathVariable String name) {
 }
 ----
 
-. The opentracing API supports the method `setTag` you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using `true` in `.startActive(true)` there is no need to call explicit `span.finish()`. 
+. The OpenTracing API supports the method `setTag` you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using `true` in `.startActive(true)` there is no need to call explicit `span.finish()`. 
 +
 [source, java]
 ----
@@ -386,7 +386,7 @@ Notice in the Logs section the log event with the name `name` and the message `t
 
 == Tracing a function
 
-The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
+The HTTP handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
 
 . The `sayHello` handler calls the function `formatGreeting` to process the input `name`. In the method `formatGreeting` create a new span using `tracer.buildSpan` and name the span `format-greeting`. 
 +
@@ -443,11 +443,11 @@ Notice the cascading effect between the three spans, the span `format-greeting` 
 
 == Distributing Tracing
 
-You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.
+You can have a single trace that goes across multiple services, this allows you to distribute tracing and better observability on the interactions between services.
 
-In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message.
+In the previous example, we instrumented a single service `service-a`, and created a span when calling a local function to format the greeting message.
 
-For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the http client.
+For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the HTTP client.
 
 . In the file `HelloController.java` locate the handler function `sayHello` and replace the function call `formatGreeting(name)` with `formatGreetingRemote(name)`.
 +
@@ -467,7 +467,7 @@ public String sayHello(@PathVariable String name) {
 }
 ----
 
-. In the method `formatGreetingRemote` the http requestis automatically instrumented, and the tracing headers inserted  when calling the remote service `service-b` endpoint `/formatGreeting`.
+. In the method `formatGreetingRemote` the HTTP request is automatically instrumented, and the tracing headers inserted when calling the remote service `service-b` endpoint `/formatGreeting`.
 +
 [source, java]
 ----
@@ -485,7 +485,7 @@ private String formatGreetingRemote(String name) {
 }
 ----
 
-. The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`.
+. The service `service-b` is already instrumented to trace every HTTP request using the same procedure <<tracing-every-http-request, Trace every HTTP request>> that we did for service `service-a`.
 
 . Import at the top of the file `src/main/java/com/example/serviceb/FormatController.java` the `opentracing` libraries.
 +
@@ -504,7 +504,7 @@ import io.opentracing.Tracer;
     private Tracer tracer;
 ----
 
-. Located the http handler function `formatGreeting` in the file `FormatController.java`
+. Located the HTTP handler function `formatGreeting` in the file `FormatController.java`
 +
 [source, java]
 ----
@@ -582,7 +582,7 @@ image::java-services-b-spans.png[]
 +
 Notice in the top section, the summary which includes the `Trace Start`, `Duration: 16ms`, `Services: 2`, `Depth: 5` and `Total Spans: 5`.
 +
-Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 5ms, meaning that for this single http request `service-a` spent 11ms and `service-b` spent 5ms.
+Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 5ms, meaning that for this single HTTP request `service-a` spent 11ms and `service-b` spent 5ms.
 
 . Expand the `Logs` sections for both spans `say-hello` from `service-a` and  `format-greeting` from `service-b`.
 +
@@ -595,7 +595,7 @@ Notice the time for the first log message `this is a log message for name Carlos
 +
 Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 4.98ms, this means this log event happened 4.98ms after the trace started in `service-a`.
 +
-Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.
+It is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the HTTP request across multiple services.
 
 == Baggage propagation
 
@@ -605,9 +605,9 @@ Baggage items are key:value string pairs that apply to the given Span, its SpanC
 
 Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.
 
-Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.
+Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and CPU overhead.
 
-. Locate the http handler `sayHello` in the file `HelloControlle.java`. Use the method `span.setBaggageItem('my-baggage', name)` before the method call `formatGreetingRemote(name)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
+. Locate the HTTP handler `sayHello` in the file `HelloController.java`. Use the method `span.setBaggageItem('my-baggage', name)` before the method call `formatGreetingRemote(name)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
 
 +
 [source, java]
@@ -627,7 +627,7 @@ public String sayHello(@PathVariable String name) {
 }
 ----
 
-. Locate the http handler `formatGreeting` in the file `FormatController.java`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
+. Locate the HTTP handler `formatGreeting` in the file `FormatController.java`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
 +
 [source, java]
 ----
@@ -678,9 +678,9 @@ Notice that the baggage is set in the `service-a` with the value `Carlos` this b
 
 If you have a specific trace id you can search for it by putting the trace id on the top left search box.
 
-You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.
+You can also use a tag to search for example searching traces that have a specific HTTP status code, or one of the custom tags we added to a span.
 
-. To search for traces using http method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
+. To search for traces using HTTP method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
 +
 image::jaeger-ui-search.png[]
 

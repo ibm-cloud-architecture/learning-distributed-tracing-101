@@ -79,7 +79,7 @@ The json section should look like the following:
 ----
 
 [# tracing-every-http-request]
-== Tracing every http request
+== Tracing every HTTP request
 
 . Create a function at the end of the file `service-a/app.js` with the following code to initialize the Jaeger tracer.
 +
@@ -109,7 +109,7 @@ const opentracing = require('opentracing')
 opentracing.initGlobalTracer(tracer)
 ----
 
-. Create a function at the end of the file `service/app.js` with the following code to trace every incoming http request.
+. Create a function at the end of the file `service/app.js` with the following code to trace every incoming HTTP request.
 +
 [source, javascript]
 ----
@@ -158,7 +158,7 @@ function tracingMiddleWare (req, res, next) {
 ----
 
 +
-The `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)` function above will attempt to extract the tracing headers from the incoming http request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated in the tracing dependency graph.
+The `tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)` function above will attempt to extract the tracing headers from the incoming HTTP request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated with the tracing dependency graph.
 
 +
 The new span is created using the function `tracer.startSpan(req.path, { childOf: wireCtx })`
@@ -167,7 +167,7 @@ The new span is created using the function `tracer.startSpan(req.path, { childOf
 The first activity captured is a log event of `request_end` with the function `span.log({ event: 'request_received' })`
 
 +
-The new span context is added to the http response, this way the http client can have this information in case of troubleshooting a particular http request.
+The new span context is added to the HTTP response, this way the HTTP client can have this information in case of troubleshooting a particular HTTP request.
 +
 [source, javascript]
 ----
@@ -195,7 +195,7 @@ span.log({ event: 'error', message: res.statusMessage })
 ----
 
 +
-For every http response the status Code and a log event are captured. With log event `request_end` you can will easily see the time spent since the log event `request_start` . Finaly the span needs to be finished.
+For every HTTP response the status Code and a log event are captured. With log event `request_end` you can will easily see the time spent since the log event `request_start` . Finaly the span needs to be finished.
 +
 [source, javascript]
 ----
@@ -204,7 +204,7 @@ span.log({ event: 'request_end' })
 span.finish()
 ----
 
-. At line `12` add the following code to use the function `tracingMiddleWare` as the first middleware to handle every http request.
+. At line `12` add the following code to use the function `tracingMiddleWare` as the first middleware to handle every HTTP request.
 +
 [source, javascript]
 ----
@@ -238,7 +238,7 @@ open http://localhost:16686/jaeger
 +
 image::nodejs-service-a-find-trace.jpg[]
 
-. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the http request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section have two log events; one with `request_received` and the final log `request_end`. The timestamps for each of the log event give you how much time the request took to be processed by your service business logic. In this example it took `4ms`.
+. Click on one of the traces, then expand the trace's `Tags` and `Logs`. You should see information about the HTTP request such as `http.method` set to `GET` and `http.status_code` set to `200`. The Logs section has two log events; one with `request_received` and the final log `request_end`. The timestamps for each of the log events give you how much time the request took to be processed by your service business logic. In this example, it took `4ms`.
 +
 image::nodejs-service-a-trace-details.jpg[]
 
@@ -259,7 +259,7 @@ image::nodejs-service-a-error.jpg[]
 +
 image::nodejs-service-a-error-details.jpg[]
 
-== Finding slow http requests
+== Finding slow HTTP requests
 
 In the `service-a`, we have the API endpoint `/sayHello`. We used this endpoint in the previous section but called it only once. This endpoint has some strange behavior. Not all responses are fast (=~ 2ms) and often the response is slow (=~ 100ms).
 
@@ -296,9 +296,9 @@ image::nodejs-service-a-slow.jpg[]
 In the picture above, you can see a timeline graph with each trace represented with a circle. In this case, we have 15 traces in the result set when we clicked `Find Traces`.
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
 You can see the pattern where only every 3rd request the response is slow.
-When troubleshooting, we are interested first on the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
+When troubleshooting, we are interested first in the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by `Longest First`.
 
-. Select the trace that took the longest time (103ms). Expand all the information for the single span operation `/sayHello` including tags and logs.
+. Select the trace that took the longest time (103ms). Expand all the information for the single-span operation `/sayHello` including tags and logs.
 +
 image::nodejs-service-a-slow-details.jpg[]
 
@@ -352,14 +352,14 @@ open http://localhost:16686/jaeger
 image::nodejs-service-a-fast.jpg[]
 
 +
-You can see now that all http requests are fast and the problem is fixed.
+You can see now that all HTTP requests are fast and the problem is fixed.
 
 +
-Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enable us to obverse their behavior and quickly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems. 
+Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enables us to obverse their behavior and quickly narrow down to a specific service; and within that service, to further narrow down to a specific endpoint having problems. 
 
-As demostrated in this exercise, you can increase the observality of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of an specific http handler and function. 
+As demonstrated in this exercise, you can increase the observability of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of a specific HTTP handler and function. 
 
-== Tracing an http handler
+== Tracing an HTTP handler
 
 In the previous example, we were able to identify the endpoint `/sayHello` as one of interest in our service. Let's see how can we add tracing instrumentation to the function that is handling this endpoint.
 
@@ -395,7 +395,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. The opentracing API supports the method `log`. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
+. The OpenTracing API supports the method `log`. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.
 +
 [source, javascript]
 ----
@@ -408,7 +408,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. The opentracing API supports the method `setTag`. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the `span.finish()` when you are done instrumenting the span.
+. The OpenTracing API supports the method `setTag`. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the `span.finish()` when you are done instrumenting the span.
 +
 [source, javascript]
 ----
@@ -466,7 +466,7 @@ Notice:
 
 == Tracing a function
 
-The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
+The HTTP handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.
 
 . The `sayHello` handler calls the function `formatGreeting` to process the input `name`. Pass the current span as an additional parammeter `formatGreeting(name, span)`
 +
@@ -484,7 +484,7 @@ const sayHello = async (req, res) => {
 ----
 
 . In the function `formatGreeting` create a new span using `tracer.startSpan`.
-Use the span from the http handler as `parent` span, name the span `format-greeting`. Remember to finish the span before returning with `span.finish()`.
+Use the span from the HTTP handler as `parent` span, name the span `format-greeting`. Remember to finish the span before returning with `span.finish()`.
 +
 [source, javascript]
 ----
@@ -538,11 +538,11 @@ Notice the cascading effect between the three spans, the span `format-greeting` 
 
 == Distributing Tracing
 
-You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.
+You can have a single trace that goes across multiple services, this allows you to distribute tracing and better observability on the interactions between services.
 
-In the previous example, we instrumented a single service `service-a`, and created span when calling a local function to format the greeting message.
+In the previous example, we instrumented a single service `service-a`, and created a span when calling a local function to format the greeting message.
 
-For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the http client.
+For the following example, we are going to use a remote service `service-b` to format the message, and returning the formatted greeting message to the HTTP client.
 
 . In the file `service-a/hello.js` locate the handler function `sayHello` and replace the function call `formatGreeting(name, span)` with `formatGreetingRemote(name, span)`.
 +
@@ -559,7 +559,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. In the function `formatGreetingRemote` use the function `tracer.inject` to extract the span context and inject them into the `headers` of the http request when calling the remote service `service-b` endpoint `/formatGreeting`.
+. In the function `formatGreetingRemote` use the function `tracer.inject` to extract the span context and inject them into the `headers` of the HTTP request when calling the remote service `service-b` endpoint `/formatGreeting`.
 +
 [source, javascript]
 ----
@@ -577,7 +577,7 @@ const formatGreetingRemote = async (name, span) => {
 }
 ----
 
-. The service `service-b` is already instrumented to trace every http request using the same procedure <<tracing-every-http-request, Trace every http request>> that we did for service `service-a`.
+. The service `service-b` is already instrumented to trace every HTTP request using the same procedure <<tracing-every-http-request, Trace every HTTP request>> that we did for service `service-a`.
 
 . Locate the file `service-b/formatter.js` and add.
 
@@ -589,7 +589,7 @@ const opentracing = require('opentracing')
 const tracer = opentracing.globalTracer()
 ----
 
-. Located the http handler function `formatGreeting` in the file `service-b/formatter.js`
+. Located the HTTP handler function `formatGreeting` in the file `service-b/formatter.js`
 +
 [source, javascript]
 ----
@@ -667,7 +667,7 @@ image::nodejs-services-b-spans.jpg[]
 +
 Notice in the top section, the summary which includes the `Trace Start`, `Duration: 19ms`, `Services: 2`, `Depth: 4` and `Total Spans: 4`.
 +
-Notice the bottom section on how the total duration of 19ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 4ms, meaning that for this single http request `service-a` spent 15ms and `service-b` spent 4ms.
+Notice the bottom section on how the total duration of 19ms is broken down per span, and at which time each span started and ended. You can see that the time spent in `service-b` was 4ms, meaning that for this single HTTP request `service-a` spent 15ms and `service-b` spent 4ms.
 
 . Expand the `Logs` sections for both spans `say-hello` from `service-a` and  `format-greeting` from `service-b`.
 +
@@ -680,7 +680,7 @@ Notice the time for the first log message `this is a log message for name Carlos
 +
 Notice the time for the second log message `formatting message remotely for name Carlos` in `service-b` is of 12ms, this means this log event happened 12ms after the trace started in `service-a`.
 +
-Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.
+It is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the HTTP request across multiple services.
 
 == Baggage propagation
 
@@ -690,9 +690,9 @@ Baggage items are key:value string pairs that apply to the given Span, its SpanC
 
 Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.
 
-Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.
+Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and CPU overhead.
 
-. Locate the http handler `sayHello` in the file `service-a/hello.js`. Use the method `span.setBaggageItem('my-baggage', name)` before the function call `formatGreetingRemote(name, span)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
+. Locate the HTTP handler `sayHello` in the file `service-a/hello.js`. Use the method `span.setBaggageItem('my-baggage', name)` before the function call `formatGreetingRemote(name, span)` to set the baggage with key `my-baggage` to the value of the `name` parameter.
 
 +
 [source, javascript]
@@ -709,7 +709,7 @@ const sayHello = async (req, res) => {
 }
 ----
 
-. Locate the http handler `formatGreeting` in the file `service-b/formatter.js`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
+. Locate the HTTP handler `formatGreeting` in the file `service-b/formatter.js`. Use the method `span.getBaggageItem('my-baggage')` to get the value of the name parameter at `service-a`. For convenience log the value using `span.log` to see the value in the Jaeger UI.
 +
 [source, javascript]
 ----
@@ -760,9 +760,9 @@ Notice that the baggage is set in the `service-a` with the value `Carlos` this b
 
 If you have a specific trace id you can search for it by putting the trace id on the top left search box.
 
-You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.
+You can also use a tag to search for example searching traces that have a specific HTTP status code, or one of the custom tags we added to a span.
 
-. To search for traces using http method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
+. To search for traces using HTTP method `GET` and status code `200`, enter `http.status_code=200  http.method=GET` on the `Tags` field in the search form, and then click `Find Traces`.
 +
 image::jaeger-ui-search.png[]
 
