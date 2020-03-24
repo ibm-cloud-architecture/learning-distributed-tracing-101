@@ -24,7 +24,7 @@ Learn how to:
 
 Microservices provides a powerful architecture, but not without its own challenges, especially with regards to debugging and observing distributed transactions across complex networks — simply because there are no in-memory calls or stack traces to do so.
 
-This is where distributed tracing comes into picture. Distributed tracing provides a solution for describing and analyzing the cross-process transactions. Some of the uses cases of distributed tracing as described in [Google’s Dapper paper](https://ai.google/research/pubs/pub36356) include anomaly detection, diagnosing steady state problems, distributed profiling, resource attribution and workload modeling of microservices.
+This is where distributed tracing comes into picture. Distributed tracing provides a solution for describing and analyzing the cross-process transactions. Some of the uses cases of distributed tracing as described in [Google’s Dapper paper](https://ai.google/research/pubs/pub36356) include anomaly detection, diagnosing steady-state problems, distributed profiling, resource attribution and workload modeling of microservices.
 
 == Distributed Tracing: A Mental Model
 Most mental models for tracing descend from Google’s Dapper paper. OpenTracing uses similar nouns and verbs.
@@ -55,7 +55,7 @@ These three components have different requirements and drive the design of the D
 - Analysis system: A database and interactive UI for working with the trace data.
 
 ## How does OpenTracing fit into this?
-The OpenTracing API provides a standard, vendor neutral framework for instrumentation. This means that if a developer wants to try out a different distributed tracing system, then instead of repeating the whole instrumentation process for the new distributed tracing system, the developer can simply change the configuration of the Tracer.
+The OpenTracing API provides a standard, vendor-neutral framework for instrumentation. This means that if a developer wants to try out a different distributed tracing system, then instead of repeating the whole instrumentation process for the new distributed tracing system, the developer can simply change the configuration of the Tracer.
 
 
 NOTE: Content extracted from http://opentracing.io
