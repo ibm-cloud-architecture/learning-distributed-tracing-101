@@ -34,6 +34,11 @@
             <type>pom</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.jaegertracing</groupId>
+            <artifactId>jaeger-client</artifactId>
+            <version>0.34.0</version>
+        </dependency>
         <!-- For tests -->
         <dependency>
             <groupId>junit</groupId>
