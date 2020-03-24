@@ -64,7 +64,7 @@ Hello Carlos!
 
 . End the service
 
-Use `Ctrl-C` on the window where you started `docker-compose` or use `docker-compose stop` from the `lab-jaeger-ol/solution` directory.
+Use `Ctrl-C` on the window where you started `docker-compose` or use `docker-compose stop` .
 
 
 == Add client libraries
