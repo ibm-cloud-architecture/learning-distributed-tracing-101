@@ -102,9 +102,9 @@
 <ul class="sectlevel1">
 <li><a href="#_test_your_environment">Test your environment</a></li>
 <li><a href="#_add_client_libraries">Add client libraries</a></li>
-<li><a href="#_tracing_every_http_request">Tracing every http request</a></li>
-<li><a href="#_finding_slow_http_requests">Finding slow http requests</a></li>
-<li><a href="#_tracing_an_http_handler">Tracing an http handler</a></li>
+<li><a href="#_tracing_every_http_request">Tracing every HTTP request</a></li>
+<li><a href="#_finding_slow_http_requests">Finding slow HTTP requests</a></li>
+<li><a href="#_tracing_an_http_handler">Tracing an HTTP handler</a></li>
 <li><a href="#_tracing_a_function">Tracing a function</a></li>
 <li><a href="#_distributing_tracing">Distributing Tracing</a></li>
 <li><a href="#_baggage_propagation">Baggage propagation</a></li>
@@ -211,7 +211,7 @@ Hello Carlos!</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Add the tracing client library for the java <code>service-a</code>, edit the file <code>service-a/pom.xml</code> and add the dependenceies for <code>opentracing-api</code>, <code>opentracing-spring-cloud-starter</code>, and <code>jaeger-client</code>
+<p>Add the tracing client library for the java <code>service-a</code>, edit the file <code>service-a/pom.xml</code> and add the dependencies for <code>opentracing-api</code>, <code>opentracing-spring-cloud-starter</code>, and <code>jaeger-client</code>
 The <code>pom.xml</code> section should look like the following:</p>
 <div class="listingblock">
 <div class="content">
@@ -240,7 +240,7 @@ The <code>pom.xml</code> section should look like the following:</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tracing_every_http_request"><a class="anchor" href="#_tracing_every_http_request"></a>Tracing every http request</h2>
+<h2 id="_tracing_every_http_request"><a class="anchor" href="#_tracing_every_http_request"></a>Tracing every HTTP request</h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
@@ -302,7 +302,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the http request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section have two logs one with <code>preHandle</code> and the final log <code>afterCompletion</code> this gives you how much time the request took to be processed by your service business logic. In this example it took <code>8ms</code>.</p>
+<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the HTTP request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section has two logs one with <code>preHandle</code> and the final log <code>afterCompletion</code> this gives you how much time the request took to be processed by your service business logic. In this example, it took <code>8ms</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-trace-details.jpg" alt="nodejs service a trace details">
@@ -327,7 +327,7 @@ HTTP/1.1 500</code></pre>
 </div>
 </li>
 <li>
-<p>Click on the trace with the <code>/error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as the <code>http.status_code</code> se to <code>500</code>.</p>
+<p>Click on the trace with the <code>/error</code>, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the trace such as the <code>http.status_code</code> set to <code>500</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/java-service-a-error-details.png" alt="java service a error details">
@@ -339,7 +339,7 @@ HTTP/1.1 500</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow http requests</h2>
+<h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow HTTP requests</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the <code>service-a</code> we have the API endpoint <code>/sayHello</code>, we used this endpoint in the previous section but called it only once. This endpoint has some strange behavior that not all responses are fast, very often the response is slow 100ms.</p>
@@ -388,7 +388,7 @@ When troubleshooting we are interested first on the slowest requests, you can cl
 </div>
 </li>
 <li>
-<p>Select the trace that took the longest time 103ms, expand all the information for the single span operation <code>/sayHello</code> including tags and logs.</p>
+<p>Select the trace that took the longest time 103ms, expand all the information for the single-span operation <code>/sayHello</code> including tags and logs.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/java-service-a-slow-details.png" alt="java service a slow details">
@@ -450,10 +450,10 @@ done;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You can see now that all http requests are fast and the problem is fixed</p>
+<p>You can see now that all HTTP requests are fast and the problem is fixed</p>
 </div>
 <div class="paragraph">
-<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows to narrow down to a specific service, and whithin that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.</p>
+<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Having the ability to have observability allows us to narrow down to a specific service, and within that service a specific endpoint having problems, starting with a single trace and span you can increase the observability of your applications.</p>
 </div>
 </li>
 </ol>
@@ -461,7 +461,7 @@ done;</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tracing_an_http_handler"><a class="anchor" href="#_tracing_an_http_handler"></a>Tracing an http handler</h2>
+<h2 id="_tracing_an_http_handler"><a class="anchor" href="#_tracing_an_http_handler"></a>Tracing an HTTP handler</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the previous example, we were able to identify the endpoint <code>/sayHello</code> as one of interest in our service. Let&#8217;s see how can we add tracing instrumentation to the function that is handling this endpoint.</p>
@@ -488,7 +488,7 @@ import io.opentracing.Tracer;</code></pre>
 </div>
 </li>
 <li>
-<p>Locate the method <code>sayHello</code> and and wrap the code in a try with a scope, this will create a new child span.</p>
+<p>Locate the method <code>sayHello</code> and wrap the code in a try with a scope, this will create a new child span.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
@@ -515,7 +515,7 @@ import io.opentracing.Tracer;</code></pre>
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>log</code> you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
+<p>The OpenTracing API supports the method <code>log</code> you can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
@@ -535,7 +535,7 @@ import io.opentracing.Tracer;</code></pre>
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>setTag</code> you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using <code>true</code> in <code>.startActive(true)</code> there is no need to call explicit <code>span.finish()</code>.</p>
+<p>The OpenTracing API supports the method <code>setTag</code> you can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Since we are using <code>true</code> in <code>.startActive(true)</code> there is no need to call explicit <code>span.finish()</code>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
@@ -612,7 +612,7 @@ Notice in the Logs section the log event with the name <code>name</code> and the
 <h2 id="_tracing_a_function"><a class="anchor" href="#_tracing_a_function"></a>Tracing a function</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.</p>
+<p>The HTTP handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -687,13 +687,13 @@ Hello Carlos!</code></pre>
 <h2 id="_distributing_tracing"><a class="anchor" href="#_distributing_tracing"></a>Distributing Tracing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.</p>
+<p>You can have a single trace that goes across multiple services, this allows you to distribute tracing and better observability on the interactions between services.</p>
 </div>
 <div class="paragraph">
-<p>In the previous example, we instrumented a single service <code>service-a</code>, and created span when calling a local function to format the greeting message.</p>
+<p>In the previous example, we instrumented a single service <code>service-a</code>, and created a span when calling a local function to format the greeting message.</p>
 </div>
 <div class="paragraph">
-<p>For the following example, we are going to use a remote service <code>service-b</code> to format the message, and returning the formatted greeting message to the http client.</p>
+<p>For the following example, we are going to use a remote service <code>service-b</code> to format the message, and returning the formatted greeting message to the HTTP client.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -717,7 +717,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>In the method <code>formatGreetingRemote</code> the http requestis automatically instrumented, and the tracing headers inserted  when calling the remote service <code>service-b</code> endpoint <code>/formatGreeting</code>.</p>
+<p>In the method <code>formatGreetingRemote</code> the HTTP request is automatically instrumented, and the tracing headers inserted when calling the remote service <code>service-b</code> endpoint <code>/formatGreeting</code>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">private String formatGreetingRemote(String name) {
@@ -736,7 +736,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>The service <code>service-b</code> is already instrumented to trace every http request using the same procedure <a href="#tracing-every-http-request">Trace every http request</a> that we did for service <code>service-a</code>.</p>
+<p>The service <code>service-b</code> is already instrumented to trace every HTTP request using the same procedure <a href="#tracing-every-http-request">Trace every HTTP request</a> that we did for service <code>service-a</code>.</p>
 </li>
 <li>
 <p>Import at the top of the file <code>src/main/java/com/example/serviceb/FormatController.java</code> the <code>opentracing</code> libraries.</p>
@@ -758,7 +758,7 @@ import io.opentracing.Tracer;</code></pre>
 </div>
 </li>
 <li>
-<p>Located the http handler function <code>formatGreeting</code> in the file <code>FormatController.java</code></p>
+<p>Located the HTTP handler function <code>formatGreeting</code> in the file <code>FormatController.java</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
@@ -846,7 +846,7 @@ Hello Carlos!</code></pre>
 <p>Notice in the top section, the summary which includes the <code>Trace Start</code>, <code>Duration: 16ms</code>, <code>Services: 2</code>, <code>Depth: 5</code> and <code>Total Spans: 5</code>.</p>
 </div>
 <div class="paragraph">
-<p>Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in <code>service-b</code> was 5ms, meaning that for this single http request <code>service-a</code> spent 11ms and <code>service-b</code> spent 5ms.</p>
+<p>Notice the bottom section on how the total duration of 16ms is broken down per span, and at which time each span started and ended. You can see that the time spent in <code>service-b</code> was 5ms, meaning that for this single HTTP request <code>service-a</code> spent 11ms and <code>service-b</code> spent 5ms.</p>
 </div>
 </li>
 <li>
@@ -866,7 +866,7 @@ Hello Carlos!</code></pre>
 <p>Notice the time for the second log message <code>formatting message remotely for name Carlos</code> in <code>service-b</code> is of 4.98ms, this means this log event happened 4.98ms after the trace started in <code>service-a</code>.</p>
 </div>
 <div class="paragraph">
-<p>Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.</p>
+<p>It is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the HTTP request across multiple services.</p>
 </div>
 </li>
 </ol>
@@ -886,12 +886,12 @@ Hello Carlos!</code></pre>
 <p>Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.</p>
 </div>
 <div class="paragraph">
-<p>Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.</p>
+<p>Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and CPU overhead.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Locate the http handler <code>sayHello</code> in the file <code>HelloControlle.java</code>. Use the method <code>span.setBaggageItem('my-baggage', name)</code> before the method call <code>formatGreetingRemote(name)</code> to set the baggage with key <code>my-baggage</code> to the value of the <code>name</code> parameter.</p>
+<p>Locate the HTTP handler <code>sayHello</code> in the file <code>HelloController.java</code>. Use the method <code>span.setBaggageItem('my-baggage', name)</code> before the method call <code>formatGreetingRemote(name)</code> to set the baggage with key <code>my-baggage</code> to the value of the <code>name</code> parameter.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String sayHello(@PathVariable String name) {
@@ -911,7 +911,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>Locate the http handler <code>formatGreeting</code> in the file <code>FormatController.java</code>. Use the method <code>span.getBaggageItem('my-baggage')</code> to get the value of the name parameter at <code>service-a</code>. For convenience log the value using <code>span.log</code> to see the value in the Jaeger UI.</p>
+<p>Locate the HTTP handler <code>formatGreeting</code> in the file <code>FormatController.java</code>. Use the method <code>span.getBaggageItem('my-baggage')</code> to get the value of the name parameter at <code>service-a</code>. For convenience log the value using <code>span.log</code> to see the value in the Jaeger UI.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public String formatGreeting(@RequestParam String name) {
@@ -975,12 +975,12 @@ Hello Carlos!</code></pre>
 <p>If you have a specific trace id you can search for it by putting the trace id on the top left search box.</p>
 </div>
 <div class="paragraph">
-<p>You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.</p>
+<p>You can also use a tag to search for example searching traces that have a specific HTTP status code, or one of the custom tags we added to a span.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>To search for traces using http method <code>GET</code> and status code <code>200</code>, enter <code>http.status_code=200  http.method=GET</code> on the <code>Tags</code> field in the search form, and then click <code>Find Traces</code>.</p>
+<p>To search for traces using HTTP method <code>GET</code> and status code <code>200</code>, enter <code>http.status_code=200  http.method=GET</code> on the <code>Tags</code> field in the search form, and then click <code>Find Traces</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/jaeger-ui-search.png" alt="jaeger ui search">

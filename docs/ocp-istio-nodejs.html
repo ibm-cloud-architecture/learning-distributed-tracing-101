@@ -160,7 +160,7 @@
 <h2 id="_installing_service_mesh_istio_operator"><a class="anchor" href="#_installing_service_mesh_istio_operator"></a>Installing Service Mesh (Istio) Operator</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following operators and tools are installed and configure as part of the Service Mesh installation:</p>
+<p>The following operators and tools are installed and configured as part of the Service Mesh installation:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -173,7 +173,7 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>With OpenShift 4, you can use the <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned">CodeReady Containers</a> to setup a local development cluster</p>
+<p>With OpenShift 4, you can use the <a href="https://cloud.redhat.com/openshift/install/crc/installer-provisioned">CodeReady Containers</a> to set up a local development cluster</p>
 </div>
 <div class="ulist">
 <ul>
@@ -326,7 +326,7 @@ prometheus             prometheus-istio-system.apps-crc.testing                 
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s look at the file contents on how the services are defined to be deploy into OpenShift cluster:</p>
+<p>Let&#8217;s look at the file contents on how the services are defined to be deployed into OpenShift cluster:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -433,7 +433,7 @@ spec:
 <div class="ulist">
 <ul>
 <li>
-<p>The port for the container is specified in the service and the container in the deployment, for example <code>service-a</code> with port <code>8080</code> and <code>service-b</code> with port <code>8081</code></p>
+<p>The port for the container is specified in the service and the container in the deployment, for example, <code>service-a</code> with port <code>8080</code> and <code>service-b</code> with port <code>8081</code></p>
 </li>
 </ul>
 </div>
@@ -443,10 +443,10 @@ spec:
 <div class="ulist">
 <ul>
 <li>
-<p>The variable <code>JAEGER_ENDPOINT</code> is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service <code><a href="http://jaeger-collector.istio-system.svc:14268/api/traces" class="bare">http://jaeger-collector.istio-system.svc:14268/api/traces</a></code> that is deployed on the namespace <code>istio-system</code>.</p>
+<p>The variable <code>JAEGER_ENDPOINT</code> is specified to indicate to the Jaeger client library to send the traces using HTTP to the jaeger collector service <code><a href="http://jaeger-collector.istio-system.svc:14268/api/traces" class="bare">http://jaeger-collector.istio-system.svc:14268/api/traces</a></code> that is deployed on the namespace <code>istio-system</code>.</p>
 </li>
 <li>
-<p>The variable <code>SERVICE_FORMATTER</code> used by <code>service-a</code> to indicate the hostname of <code>service-b</code> that will be use to format the hello message.</p>
+<p>The variable <code>SERVICE_FORMATTER</code> used by <code>service-a</code> to indicate the hostname of <code>service-b</code> that will be used to format the hello message.</p>
 </li>
 </ul>
 </div>
@@ -460,7 +460,7 @@ spec:
 <div class="ulist">
 <ul>
 <li>
-<p>The service port name value start with <code>http</code></p>
+<p>The service port name starts with <code>http</code></p>
 </li>
 </ul>
 </div>
@@ -482,7 +482,7 @@ spec:
 </div>
 </li>
 <li>
-<p>The Node.js code was modified for both services to handle Istio zipkin/B3 header propagation, the incomming http request and the outgoing http request now has B3 headers instead of jaeger headers. A different encoder was use to extract and inject the headers to be compatible with Istio. The source code is available in their respective directories <code>service-a</code> and <code>service-b</code>, here is a snippet of the code changes in <code>app.js</code></p>
+<p>The Node.js code was modified for both services to handle Istio zipkin/B3 header propagation, the incomming HTTP request and the outgoing HTTP request now has B3 headers instead of jaeger headers. A different encoder was use to extract and inject the headers to be compatible with Istio. The source code is available in their respective directories <code>service-a</code> and <code>service-b</code>, here is a snippet of the code changes in <code>app.js</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const ZipkinB3TextMapCodec = require('jaeger-client').ZipkinB3TextMapCodec
@@ -560,7 +560,7 @@ deployment.apps/service-b   1/1       1            1           6m44s</code></pre
 </div>
 </div>
 <div class="paragraph">
-<p>Notice that the under the <code>READY</code> column for pods, it shows that there are two (2/2) containers running, one of them is the istio side card proxy.</p>
+<p>Notice that under the <code>READY</code> column for pods, it shows that there are two (2/2) containers running, one of them is the istio side card proxy.</p>
 </div>
 </li>
 <li>
@@ -589,7 +589,7 @@ istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing       
 </div>
 </div>
 <div class="paragraph">
-<p>From the result you can see that <code>service-a</code> calls <code>service-b</code> and replies back.</p>
+<p>From the result, you can see that <code>service-a</code> calls <code>service-b</code> and replies back.</p>
 </div>
 </li>
 <li>
@@ -611,11 +611,11 @@ istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing       
 </div>
 </div>
 <div class="paragraph">
-<p>Check one of the labs <a href="lab-jaeger-nodejs.html" class="page">Lab Jaeger - Node.js</a> or <a href="lab-jaeger-java.html" class="page">Lab Jaeger - Java</a> for a more in depth lab for Opentracing with Jaeger.</p>
+<p>Check one of the labs <a href="lab-jaeger-nodejs.html" class="page">Lab Jaeger - Node.js</a> or <a href="lab-jaeger-java.html" class="page">Lab Jaeger - Java</a> for a more in-depth lab for Opentracing with Jaeger.</p>
 </div>
 </li>
 <li>
-<p>In the Kiali UI select Graph to see a topology view of the services, you can enable traffic animation under Display to see the flow of http requests</p>
+<p>In the Kiali UI select Graph to see a topology view of the services, you can enable traffic animation under Display to see the flow of HTTP requests</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/istio-nodejs-kiali.png" alt="istio nodejs kiali">

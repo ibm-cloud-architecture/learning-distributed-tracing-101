@@ -102,9 +102,9 @@
 <ul class="sectlevel1">
 <li><a href="#_test_your_environment">Test your environment</a></li>
 <li><a href="#_add_client_libraries">Add client libraries</a></li>
-<li><a href="#_tracing_every_http_request">Tracing every http request</a></li>
-<li><a href="#_finding_slow_http_requests">Finding slow http requests</a></li>
-<li><a href="#_tracing_an_http_handler">Tracing an http handler</a></li>
+<li><a href="#_tracing_every_http_request">Tracing every HTTP request</a></li>
+<li><a href="#_finding_slow_http_requests">Finding slow HTTP requests</a></li>
+<li><a href="#_tracing_an_http_handler">Tracing an HTTP handler</a></li>
 <li><a href="#_tracing_a_function">Tracing a function</a></li>
 <li><a href="#_distributing_tracing">Distributing Tracing</a></li>
 <li><a href="#_baggage_propagation">Baggage propagation</a></li>
@@ -257,7 +257,7 @@ The json section should look like the following:</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tracing_every_http_request"><a class="anchor" href="#_tracing_every_http_request"></a>Tracing every http request</h2>
+<h2 id="_tracing_every_http_request"><a class="anchor" href="#_tracing_every_http_request"></a>Tracing every HTTP request</h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
@@ -292,7 +292,7 @@ opentracing.initGlobalTracer(tracer)</code></pre>
 </div>
 </li>
 <li>
-<p>Create a function at the end of the file <code>service/app.js</code> with the following code to trace every incoming http request.</p>
+<p>Create a function at the end of the file <code>service/app.js</code> with the following code to trace every incoming HTTP request.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function tracingMiddleWare (req, res, next) {
@@ -340,7 +340,7 @@ opentracing.initGlobalTracer(tracer)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)</code> function above will attempt to extract the tracing headers from the incoming http request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated in the tracing dependency graph.</p>
+<p>The <code>tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)</code> function above will attempt to extract the tracing headers from the incoming HTTP request. If the incoming request contains trace information, it will be used to create a child span from the previous service; the current service will then be correctly associated with the tracing dependency graph.</p>
 </div>
 <div class="paragraph">
 <p>The new span is created using the function <code>tracer.startSpan(req.path, { childOf: wireCtx })</code></p>
@@ -349,7 +349,7 @@ opentracing.initGlobalTracer(tracer)</code></pre>
 <p>The first activity captured is a log event of <code>request_end</code> with the function <code>span.log({ event: 'request_received' })</code></p>
 </div>
 <div class="paragraph">
-<p>The new span context is added to the http response, this way the http client can have this information in case of troubleshooting a particular http request.</p>
+<p>The new span context is added to the HTTP response, this way the HTTP client can have this information in case of troubleshooting a particular HTTP request.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -377,7 +377,7 @@ span.log({ event: 'error', message: res.statusMessage })</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For every http response the status Code and a log event are captured. With log event <code>request_end</code> you can will easily see the time spent since the log event <code>request_start</code> . Finaly the span needs to be finished.</p>
+<p>For every HTTP response the status Code and a log event are captured. With log event <code>request_end</code> you can will easily see the time spent since the log event <code>request_start</code> . Finaly the span needs to be finished.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -388,7 +388,7 @@ span.finish()</code></pre>
 </div>
 </li>
 <li>
-<p>At line <code>12</code> add the following code to use the function <code>tracingMiddleWare</code> as the first middleware to handle every http request.</p>
+<p>At line <code>12</code> add the following code to use the function <code>tracingMiddleWare</code> as the first middleware to handle every HTTP request.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">app.use(tracingMiddleWare)</code></pre>
@@ -430,7 +430,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the http request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section have two log events; one with <code>request_received</code> and the final log <code>request_end</code>. The timestamps for each of the log event give you how much time the request took to be processed by your service business logic. In this example it took <code>4ms</code>.</p>
+<p>Click on one of the traces, then expand the trace&#8217;s <code>Tags</code> and <code>Logs</code>. You should see information about the HTTP request such as <code>http.method</code> set to <code>GET</code> and <code>http.status_code</code> set to <code>200</code>. The Logs section has two log events; one with <code>request_received</code> and the final log <code>request_end</code>. The timestamps for each of the log events give you how much time the request took to be processed by your service business logic. In this example, it took <code>4ms</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-trace-details.jpg" alt="nodejs service a trace details">
@@ -467,7 +467,7 @@ some error (ノ ゜Д゜)ノ ︵ ┻━┻</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow http requests</h2>
+<h2 id="_finding_slow_http_requests"><a class="anchor" href="#_finding_slow_http_requests"></a>Finding slow HTTP requests</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the <code>service-a</code>, we have the API endpoint <code>/sayHello</code>. We used this endpoint in the previous section but called it only once. This endpoint has some strange behavior. Not all responses are fast (=~ 2ms) and often the response is slow (=~ 100ms).</p>
@@ -512,11 +512,11 @@ done;</code></pre>
 <p>In the picture above, you can see a timeline graph with each trace represented with a circle. In this case, we have 15 traces in the result set when we clicked <code>Find Traces</code>.
 Some traces are taking approximately 100ms and others are taking approximately 2ms.
 You can see the pattern where only every 3rd request the response is slow.
-When troubleshooting, we are interested first on the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by <code>Longest First</code>.</p>
+When troubleshooting, we are interested first in the slowest requests. You can click on one of the traces on the graph, or you can sort in the table by <code>Longest First</code>.</p>
 </div>
 </li>
 <li>
-<p>Select the trace that took the longest time (103ms). Expand all the information for the single span operation <code>/sayHello</code> including tags and logs.</p>
+<p>Select the trace that took the longest time (103ms). Expand all the information for the single-span operation <code>/sayHello</code> including tags and logs.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/nodejs-service-a-slow-details.jpg" alt="nodejs service a slow details">
@@ -580,21 +580,21 @@ done;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You can see now that all http requests are fast and the problem is fixed.</p>
+<p>You can see now that all HTTP requests are fast and the problem is fixed.</p>
 </div>
 <div class="paragraph">
-<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enable us to obverse their behavior and quickly narrow down to a specific service; and whithin that service, to further narrow down to a specific endpoint having problems.</p>
+<p>Cloud Native applications can be composed of microservices and each microservice handling multiple endpoints. Instrumenting the code of these microservices enables us to obverse their behavior and quickly narrow down to a specific service; and within that service, to further narrow down to a specific endpoint having problems.</p>
 </div>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>As demostrated in this exercise, you can increase the observality of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of an specific http handler and function.</p>
+<p>As demonstrated in this exercise, you can increase the observability of your application starting with a single trace and span. In the next sections of this lab, you will create additional spans to further observe the behavior of a specific HTTP handler and function.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tracing_an_http_handler"><a class="anchor" href="#_tracing_an_http_handler"></a>Tracing an http handler</h2>
+<h2 id="_tracing_an_http_handler"><a class="anchor" href="#_tracing_an_http_handler"></a>Tracing an HTTP handler</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the previous example, we were able to identify the endpoint <code>/sayHello</code> as one of interest in our service. Let&#8217;s see how can we add tracing instrumentation to the function that is handling this endpoint.</p>
@@ -637,7 +637,7 @@ This will allow the trace to have an additional child span. Use the function <co
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>log</code>. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
+<p>The OpenTracing API supports the method <code>log</code>. You can log an event with a name and an object. Add a log to the span with a message that contains the value of the name.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const sayHello = async (req, res) =&gt; {
@@ -651,7 +651,7 @@ This will allow the trace to have an additional child span. Use the function <co
 </div>
 </li>
 <li>
-<p>The opentracing API supports the method <code>setTag</code>. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the <code>span.finish()</code> when you are done instrumenting the span.</p>
+<p>The OpenTracing API supports the method <code>setTag</code>. You can tag the span with a key and any value. Add a tag that contains the response, in normal use cases you would not log the entire response and instead key values that are useful for later searching for spans. Remember to call the <code>span.finish()</code> when you are done instrumenting the span.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const sayHello = async (req, res) =&gt; {
@@ -724,7 +724,7 @@ Hello Carlos!</code></pre>
 <h2 id="_tracing_a_function"><a class="anchor" href="#_tracing_a_function"></a>Tracing a function</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The http handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.</p>
+<p>The HTTP handler usually calls other functions to perform the business logic, when calling another function within the same service you can create a child span.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -746,7 +746,7 @@ Hello Carlos!</code></pre>
 </li>
 <li>
 <p>In the function <code>formatGreeting</code> create a new span using <code>tracer.startSpan</code>.
-Use the span from the http handler as <code>parent</code> span, name the span <code>format-greeting</code>. Remember to finish the span before returning with <code>span.finish()</code>.</p>
+Use the span from the HTTP handler as <code>parent</code> span, name the span <code>format-greeting</code>. Remember to finish the span before returning with <code>span.finish()</code>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function formatGreeting(name, parent) {
@@ -815,13 +815,13 @@ Hello Carlos!</code></pre>
 <h2 id="_distributing_tracing"><a class="anchor" href="#_distributing_tracing"></a>Distributing Tracing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can have a single trace that goes across multiple services, this allows to distribute tracing and better observability on the interactions between services.</p>
+<p>You can have a single trace that goes across multiple services, this allows you to distribute tracing and better observability on the interactions between services.</p>
 </div>
 <div class="paragraph">
-<p>In the previous example, we instrumented a single service <code>service-a</code>, and created span when calling a local function to format the greeting message.</p>
+<p>In the previous example, we instrumented a single service <code>service-a</code>, and created a span when calling a local function to format the greeting message.</p>
 </div>
 <div class="paragraph">
-<p>For the following example, we are going to use a remote service <code>service-b</code> to format the message, and returning the formatted greeting message to the http client.</p>
+<p>For the following example, we are going to use a remote service <code>service-b</code> to format the message, and returning the formatted greeting message to the HTTP client.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -842,7 +842,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>In the function <code>formatGreetingRemote</code> use the function <code>tracer.inject</code> to extract the span context and inject them into the <code>headers</code> of the http request when calling the remote service <code>service-b</code> endpoint <code>/formatGreeting</code>.</p>
+<p>In the function <code>formatGreetingRemote</code> use the function <code>tracer.inject</code> to extract the span context and inject them into the <code>headers</code> of the HTTP request when calling the remote service <code>service-b</code> endpoint <code>/formatGreeting</code>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const bent = require('bent')
@@ -861,7 +861,7 @@ const formatGreetingRemote = async (name, span) =&gt; {
 </div>
 </li>
 <li>
-<p>The service <code>service-b</code> is already instrumented to trace every http request using the same procedure <a href="#tracing-every-http-request">Trace every http request</a> that we did for service <code>service-a</code>.</p>
+<p>The service <code>service-b</code> is already instrumented to trace every HTTP request using the same procedure <a href="#tracing-every-http-request">Trace every HTTP request</a> that we did for service <code>service-a</code>.</p>
 </li>
 <li>
 <p>Locate the file <code>service-b/formatter.js</code> and add.</p>
@@ -876,7 +876,7 @@ const tracer = opentracing.globalTracer()</code></pre>
 </div>
 </li>
 <li>
-<p>Located the http handler function <code>formatGreeting</code> in the file <code>service-b/formatter.js</code></p>
+<p>Located the HTTP handler function <code>formatGreeting</code> in the file <code>service-b/formatter.js</code></p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function formatGreeting(req, res) {
@@ -964,7 +964,7 @@ Hello Carlos!</code></pre>
 <p>Notice in the top section, the summary which includes the <code>Trace Start</code>, <code>Duration: 19ms</code>, <code>Services: 2</code>, <code>Depth: 4</code> and <code>Total Spans: 4</code>.</p>
 </div>
 <div class="paragraph">
-<p>Notice the bottom section on how the total duration of 19ms is broken down per span, and at which time each span started and ended. You can see that the time spent in <code>service-b</code> was 4ms, meaning that for this single http request <code>service-a</code> spent 15ms and <code>service-b</code> spent 4ms.</p>
+<p>Notice the bottom section on how the total duration of 19ms is broken down per span, and at which time each span started and ended. You can see that the time spent in <code>service-b</code> was 4ms, meaning that for this single HTTP request <code>service-a</code> spent 15ms and <code>service-b</code> spent 4ms.</p>
 </div>
 </li>
 <li>
@@ -984,7 +984,7 @@ Hello Carlos!</code></pre>
 <p>Notice the time for the second log message <code>formatting message remotely for name Carlos</code> in <code>service-b</code> is of 12ms, this means this log event happened 12ms after the trace started in <code>service-a</code>.</p>
 </div>
 <div class="paragraph">
-<p>Is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the http request across multiple services.</p>
+<p>It is very useful to see the log events we instrumented in our endpoint handlers across services in this manner because it provides full observability of the lifecycle of the HTTP request across multiple services.</p>
 </div>
 </li>
 </ol>
@@ -1004,12 +1004,12 @@ Hello Carlos!</code></pre>
 <p>Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.</p>
 </div>
 <div class="paragraph">
-<p>Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and cpu overhead.</p>
+<p>Use this feature thoughtfully and with care. Every key and value is copied into every local and remote child of the associated Span, and that can add up to a lot of network and CPU overhead.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Locate the http handler <code>sayHello</code> in the file <code>service-a/hello.js</code>. Use the method <code>span.setBaggageItem('my-baggage', name)</code> before the function call <code>formatGreetingRemote(name, span)</code> to set the baggage with key <code>my-baggage</code> to the value of the <code>name</code> parameter.</p>
+<p>Locate the HTTP handler <code>sayHello</code> in the file <code>service-a/hello.js</code>. Use the method <code>span.setBaggageItem('my-baggage', name)</code> before the function call <code>formatGreetingRemote(name, span)</code> to set the baggage with key <code>my-baggage</code> to the value of the <code>name</code> parameter.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">const sayHello = async (req, res) =&gt; {
@@ -1026,7 +1026,7 @@ Hello Carlos!</code></pre>
 </div>
 </li>
 <li>
-<p>Locate the http handler <code>formatGreeting</code> in the file <code>service-b/formatter.js</code>. Use the method <code>span.getBaggageItem('my-baggage')</code> to get the value of the name parameter at <code>service-a</code>. For convenience log the value using <code>span.log</code> to see the value in the Jaeger UI.</p>
+<p>Locate the HTTP handler <code>formatGreeting</code> in the file <code>service-b/formatter.js</code>. Use the method <code>span.getBaggageItem('my-baggage')</code> to get the value of the name parameter at <code>service-a</code>. For convenience log the value using <code>span.log</code> to see the value in the Jaeger UI.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-javascript hljs" data-lang="javascript">function formatGreeting(req, res) {
@@ -1090,12 +1090,12 @@ Hello Carlos!</code></pre>
 <p>If you have a specific trace id you can search for it by putting the trace id on the top left search box.</p>
 </div>
 <div class="paragraph">
-<p>You can also use a tag to search for example searching traces that have a specific http status code, or one of the custom tags we added to a span.</p>
+<p>You can also use a tag to search for example searching traces that have a specific HTTP status code, or one of the custom tags we added to a span.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>To search for traces using http method <code>GET</code> and status code <code>200</code>, enter <code>http.status_code=200  http.method=GET</code> on the <code>Tags</code> field in the search form, and then click <code>Find Traces</code>.</p>
+<p>To search for traces using HTTP method <code>GET</code> and status code <code>200</code>, enter <code>http.status_code=200  http.method=GET</code> on the <code>Tags</code> field in the search form, and then click <code>Find Traces</code>.</p>
 <div class="imageblock">
 <div class="content">
 <img src="_images/jaeger-ui-search.png" alt="jaeger ui search">
