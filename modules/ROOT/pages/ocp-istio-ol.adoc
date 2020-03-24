@@ -1,0 +1,454 @@
+
+= Using Jaeger in Service Mesh(Istio)
+:imagesdir: images
+:toc:
+
+[discrete]
+=== General Instructions
+
+. Clone the git repository
++
+[source, bash]
+----
+git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git
+----
+
+. Change to the lab directory for **Open Liberty**
++
+[source, bash]
+----
+cd learning-distributed-tracing-101
+----
+
+== Understanding Jaeger, Service Mesh, Kiali
+
+* Read the OpenShift Documentation for:
+** https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/ossm-jaeger.html[Understanding Jaeger]
+** https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/understanding-ossm.html[Understanding Service Mesh]
+** https://docs.openshift.com/container-platform/4.2/service_mesh/service_mesh_arch/ossm-kiali.html[Understanding Kiali]
+
+== Installing Service Mesh (Istio) Operator
+
+The following operators and tools are installed and configured as part of the Service Mesh installation:
+
+* Jaeger operator 
+* Prometheus, Grafana, and Kiali
+
+With OpenShift 4, you can use the https://cloud.redhat.com/openshift/install/crc/installer-provisioned[CodeReady Containers] to set up a local development cluster 
+
+* https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/preparing-ossm-installation.html[Preparing to install Red Hat OpenShift Service Mesh]
+* https://docs.openshift.com/container-platform/4.1/service_mesh/service_mesh_install/installing-ossm.html[Installing Red Hat OpenShift Service Mesh]
+* https://learn.openshift.com/introduction/getting-started/[Familiarize yourself with OpenShift command-line and console]
+
+== Verify Service Mesh installation
+
+. Verify that istio components are installed in the namespace `istio-system`
++
+[source, bash]
+----
+oc get pods -n istio-system
+----
++
+Verify the output:
++
+[source, bash]
+----
+NAME                                      READY   STATUS    RESTARTS   AGE
+grafana-57dbfb688d-8rkzm                  2/2     Running   0          61m
+istio-citadel-54f4c55c67-4djdw            1/1     Running   0          65m
+istio-egressgateway-767484c77f-zcbp5      1/1     Running   0          61m
+istio-galley-7cbcb5bd98-qzzbg             1/1     Running   0          63m
+istio-ingressgateway-6dbdc4dbdc-lzxfm     1/1     Running   0          61m
+istio-pilot-5f5c7dd5b4-nbqsd              2/2     Running   0          62m
+istio-policy-768ff8c77-qpb4j              2/2     Running   0          63m
+istio-sidecar-injector-6f5686f954-xlmdv   1/1     Running   0          61m
+istio-telemetry-64d99945dc-rn5xv          2/2     Running   0          63m
+jaeger-57776787bc-nd4sg                   2/2     Running   0          63m
+kiali-549ccd69f4-v2rsv                    1/1     Running   0          56m
+prometheus-797855d5cf-wdmct               2/2     Running   0          65m
+----
+
+. Verify services in the namespace `istio-system`
++
+[source, bash]
+----
+oc get services -n istio-system
+----
++
+Verify the output:
++
+[source, bash]
+----
+NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                  AGE
+grafana                     ClusterIP   172.30.28.190    <none>        3000/TCP                                 61m
+istio-citadel               ClusterIP   172.30.120.72    <none>        8060/TCP,15014/TCP                       65m
+istio-egressgateway         ClusterIP   172.30.147.31    <none>        80/TCP,443/TCP,15443/TCP                 62m
+istio-galley                ClusterIP   172.30.218.118   <none>        443/TCP,15014/TCP,9901/TCP               64m
+istio-ingressgateway        ClusterIP   172.30.35.42     <none>        15020/TCP,80/TCP,443/TCP,15443/TCP       62m
+istio-pilot                 ClusterIP   172.30.225.60    <none>        15010/TCP,15011/TCP,8080/TCP,15014/TCP   62m
+istio-policy                ClusterIP   172.30.157.199   <none>        9091/TCP,15004/TCP,15014/TCP             63m
+istio-sidecar-injector      ClusterIP   172.30.155.62    <none>        443/TCP                                  61m
+istio-telemetry             ClusterIP   172.30.118.27    <none>        9091/TCP,15004/TCP,15014/TCP,42422/TCP   63m
+jaeger-agent                ClusterIP   None             <none>        5775/TCP,5778/TCP,6831/TCP,6832/TCP      64m
+jaeger-collector            ClusterIP   172.30.172.121   <none>        9411/TCP,14250/TCP,14267/TCP,14268/TCP   64m
+jaeger-collector-headless   ClusterIP   None             <none>        9411/TCP,14250/TCP,14267/TCP,14268/TCP   64m
+jaeger-query                ClusterIP   172.30.81.233    <none>        443/TCP                                  64m
+kiali                       NodePort    172.30.129.56    <none>        20001:30998/TCP                          60m
+prometheus                  ClusterIP   172.30.153.80    <none>        9090/TCP                                 65m
+zipkin                      ClusterIP   172.30.102.53    <none>        9411/TCP                                 64m
+----
+
+. Verify that the ServiceMeshMemberRoll includes the target namespace for example `default` as one of the `MEMBERS`
++
+[source, bash]
+----
+oc get ServiceMeshMemberRoll -n istio-system
+NAME      MEMBERS
+default   [default bookinfo]
+----
+
+. Verify routes to the different UI dashboards for Jaeger, Grafana, and Kiali
++
+[source, bash]
+----
+oc get route -n istio-system
+----
++
+Verify the output, make sure `jaeger-query` is using `edge` for tls termination, if not you can use `oc edit service jaeger-query -n istio-system` and change it.
++
+[source, bash]
+----
+NAME                   HOST/PORT                                            PATH   SERVICES               PORT    TERMINATION   WILDCARD
+grafana                grafana-istio-system.apps-crc.testing                       grafana                <all>   reencrypt     None
+istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                  None
+jaeger                 jaeger-istio-system.apps-crc.testing                        jaeger-query           <all>   edge          None
+kiali                  kiali-istio-system.apps-crc.testing                         kiali                  <all>   reencrypt     None
+prometheus             prometheus-istio-system.apps-crc.testing                    prometheus             <all>   reencrypt     None
+----
++
+* Open the different UIs in the browser using the route's values for HOST/PORT
+** Jaeger: https://jaeger-istio-system.apps-crc.testing
+** Grafana: https://grafana-istio-system.apps-crc.testing
+** Kiali: https://kiali-istio-system.apps-crc.testing
+
+== Build the Applications
+
+The next step is to build the applications inside OpenShift so that they become available in the OpenShift registry for the deployment in the next section:
+
+[source, bash]
+----
+# still using the "learning-distributed-tracing-101" directory
+oc new-build . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-a --name service-a-openliberty-istio
+----
+
+You can follow the build progress through the OpenShift console from the "Developer" perspective, then clicking on "Builds" and selecting the corresponding build name (`service-a`), then selecting the `Logs` tab.
+
+You can also follow the build progress via command-line, with this command:
+
+[source, bash]
+----
+oc logs -f bc/service-a-openliberty-istio
+----
+
+You should see the following message upon build completion:
+
+----
+...
+Writing manifest to image destination
+Storing signatures
+Successfully pushed image-registry.openshift-image-registry.svc:5000/default/service-a-openliberty-istio@sha256:14dc4b440e94066818d1ac9d4b06132d61c61a347c5230971159e059c9adf5de
+Push successful
+----
+
+You can safely ignore these warning messages:
+
+----
+time="2020-03-18T19:15:00Z" level=warning msg="pkg/chroot: error unmounting \"/tmp/buildah888423814/mnt/rootfs\": error checking if \"/tmp/buildah888423814/mnt/rootfs/sys/fs/cgroup/cpuset\" is mounted: no such file or directory"
+----
+
+Now build `service-b`:
+
+[source, bash]
+----
+# still using the "learning-distributed-tracing-101" directory
+oc new-build . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-b --name service-b-openliberty-istio
+----
+
+Once again, you can follow the build progress via OpenShift console or by observing the build logs with the following command:
+
+[source, bash]
+----
+oc logs -f bc/service-b-openliberty-istio
+----
+
+After both builds are completed, proceed to deploy the application.
+
+
+== Deploy the Applications
+
+. Deploy the services `service-a` and `service-b`
++
+Use the file `istio-openliberty.yaml` for Java
++
+Here is an example:
++
+[source, bash]
+----
+cd lab-jaeger-istio-ol
+oc apply -f istio-openliberty.yaml -n default
+----
++
+Let's look at the file content on how the services are defined to be deployed into OpenShift cluster:
++
+[source, yaml]
+----
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  ports:
+    - port: 9080
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  labels:
+    app: service-a
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/default/service-a-openliberty-istio
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+            - name: SERVICE_FORMATTER
+              value: service-b
+            - name: JAEGER_REPORTER_LOG_SPANS
+              value: "true"
+            - name: JAEGER_SAMPLER_TYPE
+              value: const
+            - name: JAEGER_SAMPLER_PARAM
+              value: "1"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+spec:
+  ports:
+    - port: 9081
+      name: http
+  selector:
+    app: service-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  labels:
+    app: service-b
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/default/service-b-openliberty-istio
+          env:
+            - name: JAEGER_ENDPOINT
+              value: http://jaeger-collector.istio-system.svc:14268/api/traces
+            - name: JAEGER_PROPAGATION
+              value: b3
+            - name: JAEGER_REPORTER_LOG_SPANS
+              value: "true"
+            - name: JAEGER_SAMPLER_TYPE
+              value: const
+            - name: JAEGER_SAMPLER_PARAM
+              value: "1"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9081
+----
++
+In the YAML deployment manifest there are few items to point out:
+
+* **Ports**
+** The port for the container is specified in the service and the container in the deployment, for example, `service-a` with port `9080` and `service-b` with port `9081`
+* **Environment Variables**
+** The variable `JAEGER_ENDPOINT` is specified to indicate to the Jaeger client library to send the traces using http to the jaeger collector service `http://jaeger-collector.istio-system.svc:14268/api/traces` that is deployed on the namespace `istio-system`. 
+** The variable `SERVICE_FORMATTER` used by `service-a` to indicate the hostname of `service-b` that will use to format the hello message.
+** The variable `JAEGER_PROPAGATION` is set to `b3` this is necessary because the Envoy proxy does not recognize Jaeger's default on-the-wire representation of the trace context, but it does recognize Zipkin's B3 headers. This configuration instructs the Jaeger tracer to use B3 headers instead of its default ones.
+** The variable `JAEGER_REPORTER_LOG_SPANS` is set to "true". It instructs the Jaeger reporter to log finished span IDs. The reporter may need to be given a Logger for this option to take effect.
+** The variable `JAEGER_SAMPLER_TYPE` is set to `const`, which indicates the constant sampling pattern, as defined https://www.jaegertracing.io/docs/1.17/client-libraries/#sampling[here].
+** The variable `JAEGER_SAMPLER_PARAM` is set to 1, which in combination with the constant sampling pattern, means 100% of the spans will be reported to the Jaeger backend.
+* Istio has certain https://istio.io/docs/setup/additional-setup/requirements/[specific requirements]. The ones we used in our YAML manifest are the following
+** *Named service ports* 
+*** The service port name starts with `http`
+** **Deployment with app and version labels**
+*** The Pod template should have the following labels defined `app` and `version`
+
+
+. The `pom.xml` for each service contains the Jaeger client dependency, which can also handle the headers generated by the Istio Envoy proxy forwards, thus allowing for end to end propagation. The source code is available in their respective directories `service-a` and `service-b`, the dependency related to OpenTracing in the file `pom.xml` for the service looks like this:
++
+[source, xml]
+----
+<dependency>
+    <groupId>io.jaegertracing</groupId>
+    <artifactId>jaeger-client</artifactId>
+    <version>0.34.0</version>
+</dependency>
+----
+
+. Deploy the Istio Gateway and VirtualService
++
+[source, bash]
+----
+oc apply -f gateway.yaml -n default
+----
++
+Here is the content of `gateway.yaml`
++
+[source, yaml]
+----
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: distributing-tracing-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: distributing-tracing
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - distributing-tracing-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /sayHello
+      route:
+        - destination:
+            host: service-a
+            port:
+              number: 9080
+----
+
+. Verify services are deployed and running:
++
+[source, bash]
+----
+oc get all -l app=service-a -n default
+oc get all -l app=service-b -n default
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/service-a-799d4dc5f8-v7l74   2/2     Running   0          19m
+pod/service-b-5c45ff88d-dr7cl   2/2     Running   0          23m
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/service-a   ClusterIP   172.30.243.210   <none>        9080/TCP   19m
+service/service-b   ClusterIP   172.30.40.248   <none>        9081/TCP   23m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-a   1/1     1            1           19m
+deployment.apps/service-b   1/1     1            1           23m
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/service-a-799d4dc5f8   1         1         1       19m
+replicaset.apps/service-b-5c45ff88d   1         1         1       23m
+----
++
+Notice that under the `READY` column for pods, it shows that there are two (2/2) containers running, one of them is the istio sidecar proxy.
+
+. Get the hostname for the Istio ingress gateway
++
+[source, bash]
+----
+oc get route -n istio-system istio-ingressgateway 
+NAME                   HOST/PORT                                            PATH   SERVICES               PORT   TERMINATION   WILDCARD
+istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing          istio-ingressgateway   8080                 None
+----
+
+. Use curl or open a browser with the endpoint URL using the HOST/PORT of the route
++
+[source, bash]
+----
+curl http://istio-ingressgateway-istio-system.apps-crc.testing/sayHello/Carlos
+----
++
+Notice in the output that the message was formatted by service-b
++
+[source, bash]
+----
+Hello, from service-b Carlos!
+----
++
+From the result, you can see that `service-a` calls `service-b` and replies back.
+
+. In the Jaeger UI select `istio-ingressgateway` or `service-a` and click **Find Traces**
++
+image::istio-ol-jaeger-traces.png[]
++
+You can see 7 Spans in a single trace starting from the `istio-ingressgateway` ending in `service-b.default`
+
+. Click on one of the traces and expand the spans in the trace
++
+image::istio-ol-jaeger-spans.png[]
++
+Check one of the labs xref:lab-jaeger-nodejs.adoc[Lab Jaeger - Node.js] or xref:lab-jaeger-ol.adoc[Lab Jaeger - Open Liberty] for a more in-depth lab for Opentracing with Jaeger.
+
+. In the Kiali UI select Graph to see a topology view of the services, you can enable traffic animation under Display to see the flow of http requests
++
+image::istio-ol-kiali.png[]
+
+. In the Grafana UI select the Dashboard *Istio Workload Dashboard* or *Istio Service Dashboard* to see monitoring and metrics data for your services
++
+image::istio-ol-grafana.png[]
