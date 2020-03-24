@@ -8,5 +8,7 @@
     <httpEndpoint host="*" httpPort="${default.http.port}" 
         httpsPort="${default.https.port}" id="defaultHttpEndpoint"/>
 
-   <webApplication location="service-b.war" contextRoot="/" />
+   <webApplication location="service-b.war" contextRoot="/" >
+        <classloader apiTypeVisibility="+third-party" />
+    </webApplication>
 </server>
