@@ -341,7 +341,6 @@ In the YAML deployment manifest there are few items to point out:
 +
 [source, bash]
 ----
-cd lab-jaeger-istio-ol
 oc apply -f gateway.yaml -n default
 ----
 +
