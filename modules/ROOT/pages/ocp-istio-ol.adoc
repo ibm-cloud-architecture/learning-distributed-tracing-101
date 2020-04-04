@@ -8,6 +8,8 @@
 
 . Clone the git repository
 +
+*Important*: You must use the `https` protocol for cloning the repo. If you use the `git` protocol, you will see a build failure in the next steps of the lab and have to clone the repository again with the `https` protocol.
++
 [source, bash]
 ----
 git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git
@@ -160,7 +162,25 @@ Successfully pushed image-registry.openshift-image-registry.svc:5000/default/ser
 Push successful
 ----
 
-You can safely ignore these warning messages:
+*Important*: If you accidentally cloned the Git repository using the `git` protocol, you will see error messages in the build log that are similar to these:
+
+```
+Cloning "git@github.com:ibm-cloud-architecture/learning-distributed-tracing-101.git" ...
+error: Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+```
+
+To recover from that error condition, delete the local clone and clone the repository again using the `https` protocol. Once the clone is complete, delete the build configuration objects created by the `oc new-build` command by entering the `oc delete` commands below and then repeat the `oc new-build` step:
+
+```sh
+oc delete buildconfig service-a-openliberty-istio -n default
+oc delete imagestream open-liberty -n default
+```
+
+Note that you can safely ignore these warning messages in the build log:
 
 ----
 time="2020-03-18T19:15:00Z" level=warning msg="pkg/chroot: error unmounting \"/tmp/buildah888423814/mnt/rootfs\": error checking if \"/tmp/buildah888423814/mnt/rootfs/sys/fs/cgroup/cpuset\" is mounted: no such file or directory"
@@ -174,7 +194,7 @@ Now build `service-b`:
 oc new-build . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-b --name service-b-openliberty-istio
 ----
 
-Once again, you can follow the build progress via OpenShift console or by observing the build logs with the following command:
+Once again, you can follow the build progress via OpenShift console or observing the build logs with the following command:
 
 [source, bash]
 ----
