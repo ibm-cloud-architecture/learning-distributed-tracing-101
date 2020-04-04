@@ -83,7 +83,7 @@
     </div>
   </aside>
 </div>
-<main>
+<main class="article">
 <div class="toolbar" role="navigation">
 <button class="nav-toggle"></button>
   <a href="index.html" class="home-link"></a>
@@ -95,6 +95,7 @@
 </nav>
   <div class="edit-this-page"><a href="https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101/edit/master/modules/ROOT/pages/ocp-istio-ol.adoc">Edit this Page</a></div>
   </div>
+  <div class="content">
 <article class="doc">
 <h1 class="page">Using Jaeger in Service Mesh(Istio)</h1>
 <div id="toc" class="toc">
@@ -114,6 +115,9 @@
 <ol class="arabic">
 <li>
 <p>Clone the git repository</p>
+<div class="paragraph">
+<p><strong>Important</strong>: You must use the <code>https</code> protocol for cloning the repo. If you use the <code>git</code> protocol, you will see a build failure in the next steps of the lab and have to clone the repository again with the <code>https</code> protocol.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">git clone https://github.com/ibm-cloud-architecture/learning-distributed-tracing-101.git</code></pre>
@@ -347,7 +351,29 @@ Push successful</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You can safely ignore these warning messages:</p>
+<p><strong>Important</strong>: If you accidentally cloned the Git repository using the <code>git</code> protocol, you will see error messages in the build log that are similar to these:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>Cloning "git@github.com:ibm-cloud-architecture/learning-distributed-tracing-101.git" ...
+error: Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To recover from that error condition, delete the local clone and clone the repository again using the <code>https</code> protocol. Once the clone is complete, delete the build configuration objects created by the <code>oc new-build</code> command by entering the <code>oc delete</code> commands below and then repeat the <code>oc new-build</code> step:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">oc delete buildconfig service-a-openliberty-istio -n default
+oc delete imagestream open-liberty -n default</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that you can safely ignore these warning messages in the build log:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -364,7 +390,7 @@ oc new-build . --strategy=docker --context-dir=lab-jaeger-istio-ol/service-b --n
 </div>
 </div>
 <div class="paragraph">
-<p>Once again, you can follow the build progress via OpenShift console or by observing the build logs with the following command:</p>
+<p>Once again, you can follow the build progress via OpenShift console or observing the build logs with the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -735,6 +761,10 @@ istio-ingressgateway   istio-ingressgateway-istio-system.apps-crc.testing       
 </div>
 </div>
 </article>
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+  </div>
 </main>
 </div>
 <footer class="footer">
