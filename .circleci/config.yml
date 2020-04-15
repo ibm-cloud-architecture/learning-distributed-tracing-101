@@ -13,6 +13,9 @@ jobs:
       - run:
           name: Build docs
           command: antora --pull --stacktrace site.yml
+      - run:
+          name: Copy CNAME
+          command: cp CNAME gh-pages/
       - persist_to_workspace:
           root: gh-pages
           paths:
@@ -30,6 +33,9 @@ jobs:
       - run:
           name: Build docs
           command: antora --pull --stacktrace site-dev.yml
+      - run:
+          name: Copy CNAME
+          command: cp CNAME gh-pages/
       - persist_to_workspace:
           root: gh-pages
           paths:
