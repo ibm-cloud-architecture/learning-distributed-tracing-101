@@ -1,5 +1,6 @@
 .DS_Store
 .cache
+.project
 
 gh-pages/
 node_modules/
