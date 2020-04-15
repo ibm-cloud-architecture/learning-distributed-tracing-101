@@ -5,6 +5,9 @@ site:
   title: Learning Distributed Tracing 101
   url: https://ibm-cloud-architecture.github.io/learning-distributed-tracing-101/
   start_page: docs::index.adoc
+  robots: allow
+  keys:
+    google_analytics: "UA-149377589-7"
 
 content:
   sources:
