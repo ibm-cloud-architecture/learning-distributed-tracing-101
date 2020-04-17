@@ -3,7 +3,7 @@ runtime:
 
 site:
   title: Learning Distributed Tracing 101
-  url: https://ibm-cloud-architecture.github.io/learning-cloudnative-101/
+  url: https://tracing.cloudnative101.dev
   start_page: docs::index
 
 content:
